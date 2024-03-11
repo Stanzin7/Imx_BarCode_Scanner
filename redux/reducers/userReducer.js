@@ -1,53 +1,67 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Define an async thunk for the login process
+export const loginUser = createAsyncThunk(
+  "user/loginUser",
+  async ({ emailAddress, password }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/login/Login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ClientID: "imxapp",
+            ClientSecret: "6f5cc23a-7661-40aa-aac0-a484aaea228e",
+          },
+          body: JSON.stringify({
+            EmailAddress: emailAddress,
+            Password: password,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Could not log in");
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const initialState = {
-  user: "",
-  loggedInUser: "",
+  user: null,
   accessToken: null,
-  refreshToken: null,
-  snackBar: {
-    duration: 3000,
-    message: "",
-    type: "error", // 'success' || 'error' || 'info',
-  },
+  isLoading: false,
+  error: null,
 };
 
-export const userReducer = createSlice({
+const userReducer = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.user = action.payload.data.user;
-      state.accessToken = action.payload.data.authToken;
-      state.refreshToken = action.payload.data.refreshToken;
-      state.loggedInUser = action.payload.data.user.defaultRole;
-    },
-    setAuthToken: (state, action) => {
-      state.accessToken = action.payload.data.authToken;
-      state.refreshToken = action.payload.data.refreshToken;
-    },
-    setLoggedInUser: (state, action) => {
-      state.loggedInUser = action.payload;
-    },
     setLogout: (state) => {
-      state.user = "";
-      state.loggedInUser = "";
+      state.user = null;
       state.accessToken = null;
-      state.refreshToken = null;
-      state.snackBar = {
-        duration: 3000,
-        message: "",
-        type: "error",
-      };
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.emailAddress;
+        state.accessToken = action.payload.token;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-// Selectors
-export const getUser = (state) => state.entities.user;
-export const getLoggedInUser = (state) => state.entities.user.loggedInUser;
-
-export const { setUser, setLoggedInUser, setAuthToken, setLogout } =
-  userReducer.actions;
-
+export const { setLogout } = userReducer.actions;
 export default userReducer.reducer;

@@ -1,87 +1,24 @@
-import { FontAwesome5 } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
 // Image icons above
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Cart from "./screens/cart";
-import Menu from "./screens/menu";
-import Scanner from "./screens/scanner";
+
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View } from "react-native";
 import KeyPad from "./screens/keyPad";
-import { Provider } from "react-redux";
-import Store, { perssistedStore } from "./redux/store";
-import { PersistGate } from "redux-persist/integration/react";
 import { Image } from "expo-image";
-
-const Tab = createBottomTabNavigator();
+// Redux state management
+import { Provider, useSelector } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistedStore } from "./redux/store";
+import Authentication from "./authentication/Authentication";
+import Routes from "./navigation/routes";
 
 export default function App() {
   return (
-    <Provider store={Store}>
-      <PersistGate persistor={perssistedStore}>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistedStore}>
         <NavigationContainer>
-          <Tab.Navigator>
-            <Tab.Screen
-              name="scanner"
-              options={{
-                tabBarLabel: "Scan",
-                headerTitle: "",
-                tabBarIcon: ({ color, size }) => (
-                  <MaterialCommunityIcons
-                    name="barcode-scan"
-                    size={size}
-                    color={color}
-                  />
-                ),
-              }}
-              component={Scanner}
-            />
-            <Tab.Screen
-              name="keyPad"
-              options={{
-                tabBarLabel: "KeyPad",
-                headerTitle: "",
-                tabBarIcon: ({ color, size }) => (
-                  <Ionicons name="keypad" color={color} size={size} />
-                ),
-              }}
-              component={KeyPad}
-            />
-            <Tab.Screen
-              name="cart"
-              options={{
-                tabBarLabel: "Cart",
-                headerTitle: "",
-                tabBarIcon: ({ color, size }) => (
-                  <FontAwesome5
-                    name="shopping-cart"
-                    size={size}
-                    color={color}
-                  />
-                ),
-              }}
-              component={Cart}
-            />
-            <Tab.Screen
-              name="Menu"
-              options={{
-                tabBarLabel: "Menu",
-                tabBarIcon: ({ color, size }) => (
-                  <Ionicons
-                    name="reorder-three-outline"
-                    size={30}
-                    color="black"
-                  />
-                ),
-              }}
-              component={Menu}
-            />
-          </Tab.Navigator>
-          <StatusBar style="auto" />
+          <Routes />
         </NavigationContainer>
       </PersistGate>
     </Provider>
@@ -89,7 +26,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  // container: {
-  //   flex: 1,
-  // },
+  container: {
+    flex: 1,
+  },
 });

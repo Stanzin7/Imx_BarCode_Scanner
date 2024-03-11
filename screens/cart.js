@@ -6,6 +6,7 @@ import {
   Button,
   FlatList,
   Pressable,
+  TextInput, // Import TextInput
 } from "react-native";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -13,7 +14,6 @@ import {
   getCartProducts,
   gettotalPriceOfProduct,
 } from "../redux/reducers/cartReducer";
-import { Picker } from "@react-native-picker/picker";
 import ScannedItemCard from "../components/ProductCard";
 
 function handleSendOrder() {
@@ -25,6 +25,8 @@ const Cart = () => {
   const totalprice = useSelector((state) => gettotalPriceOfProduct(state));
 
   const [shippingOption, setShippingOption] = React.useState("Delivery");
+  const [poNumber, setPoNumber] = React.useState(""); // State for PO Number
+  const [message, setMessage] = React.useState(""); // State for message
 
   const toggleShippingOption = () => {
     setShippingOption((prevOption) =>
@@ -34,7 +36,7 @@ const Cart = () => {
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
-      <Text style={styles.headerText}>Order Summary</Text>
+      <Text style={styles.headerText}>Your Order</Text>
     </View>
   );
 
@@ -42,10 +44,30 @@ const Cart = () => {
     <View style={styles.footerContainer}>
       <View style={styles.shippingTotalContainer}>
         <View style={styles.shippingContainer}>
-          <Text style={styles.shippingText}>Shipping Option:</Text>
+          <Text style={styles.shippingText}>Shipping Method:</Text>
           <Text style={styles.optionText} onPress={toggleShippingOption}>
             {shippingOption}
           </Text>
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>PO Number:</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={setPoNumber}
+            value={poNumber}
+            placeholder="Enter PO Number"
+            keyboardType="numeric"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Message (up to 100 chars):</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={setMessage}
+            value={message}
+            placeholder="Enter a message"
+            maxLength={100}
+          />
         </View>
         <View style={styles.totalContainer}>
           <Text style={styles.totalText}>Total Price:</Text>
@@ -85,14 +107,13 @@ const Cart = () => {
           )}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={
-            <Text style={styles.emptyCartText}>There is no item in cart</Text>
+            <Text style={styles.emptyCartText}>Your Cart is Empty</Text>
           }
         />
       </View>
     </SafeAreaView>
   );
 };
-
 // Styles for the Cart component
 const styles = StyleSheet.create({
   safeAreaContainer: {
@@ -179,6 +200,17 @@ const styles = StyleSheet.create({
     marginTop: 50,
     fontSize: 18,
     color: "grey",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "black",
   },
 });
 
