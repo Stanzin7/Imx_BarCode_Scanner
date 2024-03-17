@@ -13,10 +13,7 @@ const KeyPad = () => {
   const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
   const dispatch = useDispatch();
   const [upc, setUPC] = useState("");
-
-  // useEffect(() => {
-  //   console.log("Cart Products:", cartProducts);
-  // }, [cartProducts]);
+  const [itemDetails, setItemDetails] = useState([]);
 
   const handleManualItemSubmit = async () => {
     if (upc.trim()) {
@@ -25,7 +22,8 @@ const KeyPad = () => {
         .unwrap()
         .then((response) => {
           if (response) {
-            // If you want to display item details, update the state or directly add to cart
+            const scannedItem = itemDetails[0];
+            setItemDetails((currentItems) => [response, ...currentItems]);
             dispatch(
               addProduct({
                 item: response,
@@ -51,7 +49,7 @@ const KeyPad = () => {
           style={styles.input}
           placeholder="Enter UPC"
           placeholderTextColor={Colors.dark}
-          keyboardType="numeric"
+          keyboardType="name-phone-pad"
           returnKeyType="done"
           onChangeText={setUPC}
           value={upc}

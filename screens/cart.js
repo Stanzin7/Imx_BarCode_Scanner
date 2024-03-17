@@ -8,7 +8,7 @@ import {
   Pressable,
   TextInput, // Import TextInput
 } from "react-native";
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   getCartProducts,
@@ -17,7 +17,7 @@ import {
 import ScannedItemCard from "../components/ProductCard";
 
 function handleSendOrder() {
-  // do something
+  // Send a API request to the backend.
 }
 
 const Cart = () => {
@@ -25,8 +25,9 @@ const Cart = () => {
   const totalprice = useSelector((state) => gettotalPriceOfProduct(state));
 
   const [shippingOption, setShippingOption] = React.useState("Delivery");
-  const [poNumber, setPoNumber] = React.useState(""); // State for PO Number
-  const [message, setMessage] = React.useState(""); // State for message
+  const [poNumber, setPoNumber] = useState(""); // State for PO Number
+  const [message, setMessage] = useState(""); // State for message
+  const messageInputRef = useRef(null);
 
   const toggleShippingOption = () => {
     setShippingOption((prevOption) =>
@@ -65,20 +66,23 @@ const Cart = () => {
           <Text style={styles.inputLabel}>PO Number:</Text>
           <TextInput
             style={styles.input}
-            onChangeText={setPoNumber}
-            value={poNumber}
+            onChangeText={(num) => setPoNumber(num)}
+            defaultValue={poNumber}
             placeholder="Enter PO Number"
-            keyboardType="numeric"
+            keyboardType="name-phone-pad"
+            returnKeyType="done"
           />
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Message (up to 100 chars):</Text>
           <TextInput
+            ref={messageInputRef} // Step 2: Apply the ref to the TextInput
             style={styles.input}
-            onChangeText={setMessage}
-            value={message}
+            // onChangeText={(text) => setMessage(text)}
+            // value={message}
             placeholder="Enter a message"
             maxLength={100}
+            returnKeyType="done"
           />
         </View>
       </View>
@@ -87,6 +91,12 @@ const Cart = () => {
       </Pressable>
     </View>
   );
+
+  useEffect(() => {
+    if (messageInputRef.current) {
+      messageInputRef.current.focus();
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>

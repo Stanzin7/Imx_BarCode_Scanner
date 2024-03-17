@@ -38,7 +38,7 @@ const Scanner = () => {
         .unwrap()
         .then((response) => {
           if (response) {
-            setItemDetails((currentItems) => [...currentItems, response]);
+            setItemDetails((currentItems) => [response, ...currentItems]);
           } else {
             Alert.alert(
               "No item found",

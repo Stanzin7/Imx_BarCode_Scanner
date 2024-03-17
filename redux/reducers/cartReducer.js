@@ -20,7 +20,7 @@ export const cartReducer = createSlice({
         // state.products[index].quantity = state.products[index].quantity + 1;
       } else {
         const newProduct = { ...action.payload.item, quantity: 1 };
-        state.products.push(newProduct);
+        state.products.unshift(newProduct);
       }
     },
     increaseQuanity: (state, action) => {
