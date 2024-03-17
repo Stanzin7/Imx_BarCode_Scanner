@@ -12,52 +12,48 @@ import { CameraView, useCameraPermissions } from "expo-camera/next";
 import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
+import { searchItemByBarcode } from "../redux/reducers/userReducer";
 
 const Scanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
+  const token = useSelector((state) => state.user.accessToken);
   const cartProducts = useSelector(getCartProducts);
   const dispatch = useDispatch();
   // console.log(cartProducts);
   const [scanned, setScanned] = useState(true);
   const [itemDetails, setItemDetails] = useState([]);
 
-  useEffect(() => {
-    console.log(cartProducts);
-  }, [cartProducts]);
+  // useEffect(() => {
+  //   console.log(cartProducts);
+  //   console.log(itemDetails);
+  // }, [cartProducts]);
 
   const handleBarcodeScanned = async ({ type, data }) => {
     if (!scanned) {
-      console.log("Scanned data is here:", data);
       setScanned(true);
-      const adjustedData =
-        data.length === 13 && data.startsWith("0") ? data.substring(1) : data;
 
-      if (adjustedData.length < 12) {
-        Alert.alert("Please enter the Item No in KeyPad");
-        return;
-      }
-
-      try {
-        const response = await fetch("http://50.247.13.10:3307/check-item", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ UPC: adjustedData }),
+      const adjustedData = data.startsWith("0") ? data.substring(1) : data;
+      console.log("Scanned data is here:", adjustedData);
+      dispatch(searchItemByBarcode({ barcodeId: adjustedData, token }))
+        .unwrap()
+        .then((response) => {
+          if (response) {
+            setItemDetails((currentItems) => [...currentItems, response]);
+          } else {
+            Alert.alert(
+              "No item found",
+              "The barcode did not match any items."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching item details:", error);
+          Alert.alert("Error", "Failed to fetch item details.");
+        })
+        .finally(() => {
+          // Prevent further scans
+          setScanned(true);
         });
-        const responseData = await response.json();
-        const isItemInList = itemDetails.some(
-          (item) => item.itemNo === responseData.itemNo
-        );
-
-        // Add item to the list only if it's not already present
-        if (!isItemInList) {
-          setItemDetails((currentItems) => [responseData, ...currentItems]);
-        }
-      } catch (error) {
-        console.error("Error checking item:", error);
-        Alert.alert("Error", "Failed to check the item in the database.");
-      }
     }
   };
 

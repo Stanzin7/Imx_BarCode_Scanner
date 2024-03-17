@@ -42,6 +42,18 @@ const Cart = () => {
 
   const renderFooter = () => (
     <View style={styles.footerContainer}>
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalText}>SubTotal:</Text>
+        <Text style={styles.priceText}>
+          ${parseFloat(totalprice).toFixed(2)}
+        </Text>
+      </View>
+
+      <View style={styles.totalWeightContainer}>
+        <Text style={styles.totalText}>Total Estimated Weight:</Text>
+        <Text style={styles.priceText}>20</Text>
+      </View>
+
       <View style={styles.shippingTotalContainer}>
         <View style={styles.shippingContainer}>
           <Text style={styles.shippingText}>Shipping Method:</Text>
@@ -69,15 +81,9 @@ const Cart = () => {
             maxLength={100}
           />
         </View>
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total Price:</Text>
-          <Text style={styles.priceText}>
-            ${parseFloat(totalprice).toFixed(2)}
-          </Text>
-        </View>
       </View>
       <Pressable style={styles.orderButton} onPress={handleSendOrder}>
-        <Text style={styles.orderButtonText}>Place Order</Text>
+        <Text style={styles.orderButtonText}>Check Out</Text>
       </Pressable>
     </View>
   );
@@ -149,6 +155,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 8,
   },
+
   shippingContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -211,6 +218,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "400",
     color: "black",
+  },
+  totalWeightContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 13,
   },
 });
 

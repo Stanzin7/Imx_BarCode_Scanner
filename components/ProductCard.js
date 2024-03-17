@@ -63,17 +63,17 @@ const ScannedItemCard = ({
       </Pressable>
       <View style={styles.subCon}>
         <View style={{ flex: 0.4, alignItems: "center" }}>
-          {imageUrl ? (
+          {itemNo ? (
             <Image
-              source={{ uri: imageUrl }}
+              source={{
+                uri: `https://imxshop.cmxsoftware.com/capitalItemImages/${itemNo}/0thn.jpg`,
+              }}
               style={styles.img}
-              cachePolicy="memory-disk" // Correctly apply caching to network images
             />
           ) : (
             <Image
               source={require("../assets/images/notFound.png")}
               style={styles.img}
-              // cachePolicy is not needed for local images, so it can be removed
             />
           )}
         </View>

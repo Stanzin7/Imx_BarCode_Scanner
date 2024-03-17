@@ -1,52 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, StyleSheet, FlatList } from "react-native";
+import { View, TextInput, StyleSheet, FlatList, Alert } from "react-native";
 import Colors from "../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
+import { searchItemByBarcode } from "../redux/reducers/userReducer";
 
 const KeyPad = () => {
   const cartProducts = useSelector(getCartProducts);
+  const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
   const dispatch = useDispatch();
   const [upc, setUPC] = useState("");
-  // const [loading, setLoading] = useState(false);
-  const [itemStatus, setItemStatus] = useState([]);
 
-  useEffect(() => {
-    console.log("Cart Products:", cartProducts);
-  }, [cartProducts]);
-  const checkItemInDatabase = async (upc) => {
-    setUPC("");
-    try {
-      const response = await fetch("http://50.247.13.10:3307/check-item", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ UPC: upc }),
-      });
-      const responseData = await response.json();
+  // useEffect(() => {
+  //   console.log("Cart Products:", cartProducts);
+  // }, [cartProducts]);
 
-      const isItemInList = itemStatus.some(
-        (item) => item.itemNo === responseData.itemNo
-      );
-
-      if (!isItemInList) {
-        setItemStatus((currentItems) => [responseData, ...currentItems]);
-        dispatch(
-          addProduct({
-            item: responseData,
-            itemNo: responseData.itemNo,
-          })
-        );
-      }
-    } catch (error) {
-      console.error("Error checking item:", error);
-      Alert.alert("Error", "Failed to check the item in the database.");
+  const handleManualItemSubmit = async () => {
+    if (upc.trim()) {
+      const adjustedData = upc.startsWith("0") ? upc.substring(1) : upc;
+      dispatch(searchItemByBarcode({ barcodeId: adjustedData, token }))
+        .unwrap()
+        .then((response) => {
+          if (response) {
+            // If you want to display item details, update the state or directly add to cart
+            dispatch(
+              addProduct({
+                item: response,
+                itemNo: response.itemNo,
+              })
+            );
+          } else {
+            Alert.alert("No item found", "The UPC did not match any items.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching item details:", error);
+          Alert.alert("Error", "Failed to fetch item details.");
+        });
     }
-    console.log("Cart Products:", cartProducts);
+    setUPC(""); // Reset UPC field
   };
 
   return (
@@ -56,12 +51,12 @@ const KeyPad = () => {
           style={styles.input}
           placeholder="Enter UPC"
           placeholderTextColor={Colors.dark}
-          keyboardType="name-phone-pad"
+          keyboardType="numeric"
           returnKeyType="done"
           onChangeText={setUPC}
           value={upc}
           autoFocus={true}
-          onSubmitEditing={() => checkItemInDatabase(upc)}
+          onSubmitEditing={handleManualItemSubmit}
         />
       </View>
       <FlatList
@@ -90,7 +85,6 @@ const KeyPad = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
