@@ -20,7 +20,8 @@ export const loginUser = createAsyncThunk(
         }
       );
       const data = await response.json();
-      // if (!response.ok) throw new Error(data.message || "Could not log in");
+      console.log(data);
+      if (!response.ok) throw new Error(data.message || "Could not log in");
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -40,18 +41,21 @@ export const fetchItem = createAsyncThunk(
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
+            ClientID: "imxshop",
+            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
           },
         }
       );
       const data = await response.json();
+      console.log(data);
       if (!response.ok) throw new Error(data.message || "Could not fetch item");
+
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
-
 export const searchItemByBarcode = createAsyncThunk(
   "user/searchItemByBarcode",
 
@@ -101,7 +105,8 @@ const initialState = {
   isLoading: false,
   error: null,
   item: null,
-  searchResult: null, // Added to store search results
+  searchResult: null,
+  // Consider removing clientID and clientSecret if they're not dynamically updated
 };
 
 const userReducer = createSlice({
@@ -109,10 +114,8 @@ const userReducer = createSlice({
   initialState,
   reducers: {
     setLogout: (state) => {
-      state.user = null;
-      state.accessToken = null;
-      state.item = null;
-      state.searchResult = null;
+      // Reset the state to its initial state or ensure all sensitive info is cleared
+      Object.assign(state, initialState);
     },
   },
   extraReducers: (builder) => {
@@ -125,6 +128,8 @@ const userReducer = createSlice({
         state.isLoading = false;
         state.user = action.payload.emailAddress;
         state.accessToken = action.payload.token;
+        state.clientID = action.payload.clientID;
+        state.clientSecret = action.payload.clientSecret;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
