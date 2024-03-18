@@ -69,6 +69,7 @@ const ScannedItemCard = ({
                 uri: `https://imxshop.cmxsoftware.com/capitalItemImages/${itemNo}/0thn.jpg`,
               }}
               style={styles.img}
+              contentFit="contain"
             />
           ) : (
             <Image
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
   },
   img: {
     width: 120,
-    height: 100,
+    aspectRatio: 1,
     borderRadius: 10,
   },
   rowText: {

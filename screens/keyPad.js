@@ -63,6 +63,7 @@ const KeyPad = () => {
           marginTop: 10,
           paddingBottom: 100,
         }}
+        style={styles.flatList}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.itemNo}
         renderItem={({ item }) => (
@@ -109,6 +110,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     borderRadius: 5,
     color: Colors.dark,
+    // marginBottom: 0,
+  },
+  flatList: {
+    marginTop: 20,
+    marginBottom: 0,
   },
 });
 
