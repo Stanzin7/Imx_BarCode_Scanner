@@ -7,6 +7,7 @@ import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
+import { Audio } from "expo-av";
 
 const KeyPad = () => {
   const cartProducts = useSelector(getCartProducts);
@@ -15,6 +16,15 @@ const KeyPad = () => {
   const [upc, setUPC] = useState("");
   const [itemDetails, setItemDetails] = useState([]);
 
+  const playSound = async (soundPath) => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(soundPath);
+      await sound.playAsync();
+    } catch (error) {
+      console.error("Error playing sound:", error);
+    }
+  };
+
   const handleManualItemSubmit = async () => {
     if (upc.trim()) {
       const adjustedData = upc.startsWith("0") ? upc.substring(1) : upc;
@@ -22,7 +32,8 @@ const KeyPad = () => {
         .unwrap()
         .then((response) => {
           if (response) {
-            const scannedItem = itemDetails[0];
+            // const scannedItem = itemDetails[0];
+            playSound(require("../assets/sounds/Found.wav"));
             setItemDetails((currentItems) => [response, ...currentItems]);
             dispatch(
               addProduct({
@@ -31,7 +42,7 @@ const KeyPad = () => {
               })
             );
           } else {
-            Alert.alert("No item found", "The UPC did not match any items.");
+            playSound(require("../assets/sounds/NotFound.wav"));
           }
         })
         .catch((error) => {

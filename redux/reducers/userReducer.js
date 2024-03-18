@@ -84,14 +84,26 @@ export const searchItemByBarcode = createAsyncThunk(
       // });
 
       const data = await response.json();
-      console.log("Response Data:", JSON.stringify(data, null, 2));
 
       if (!response.ok) {
         console.error("Search API response:", data);
         throw new Error(data.message || "Could not find item by barcode");
       }
+      const matchingItem = data.find((item) => {
+        return (
+          item.upc === barcodeId ||
+          item.upc2 === barcodeId ||
+          item.upc3 === barcodeId ||
+          item.upc4 === barcodeId ||
+          item.itemNo === barcodeId
+        );
+      });
+      console.log("Response Data:", JSON.stringify(matchingItem, null, 2));
 
-      return data.length > 0 ? data[0] : null;
+      // console.log(matchingItem);
+
+      return matchingItem || null;
+      // return data.length > 0 ? data[0] : null;
     } catch (error) {
       console.error("Search API error:", error);
       return rejectWithValue(error.message);

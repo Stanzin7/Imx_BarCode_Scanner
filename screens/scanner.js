@@ -13,6 +13,7 @@ import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
+import { Audio } from "expo-av";
 
 const Scanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -23,10 +24,14 @@ const Scanner = () => {
   const [scanned, setScanned] = useState(true);
   const [itemDetails, setItemDetails] = useState([]);
 
-  // useEffect(() => {
-  //   console.log(cartProducts);
-  //   console.log(itemDetails);
-  // }, [cartProducts]);
+  const playSound = async (soundPath) => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(soundPath);
+      await sound.playAsync();
+    } catch (error) {
+      console.error("Error playing sound:", error);
+    }
+  };
 
   const handleBarcodeScanned = async ({ type, data }) => {
     if (!scanned) {
@@ -38,12 +43,16 @@ const Scanner = () => {
         .unwrap()
         .then((response) => {
           if (response) {
+            playSound(require("../assets/sounds/Found.wav"));
             setItemDetails((currentItems) => [response, ...currentItems]);
           } else {
-            Alert.alert(
-              "No item found",
-              "The barcode did not match any items."
-            );
+            playSound(require("../assets/sounds/NotFound.wav"));
+            // .then(() => {
+            // Alert.alert(
+            //   "No item found",
+            //   "The barcode did not match any items."
+            // );
+            // });
           }
         })
         .catch((error) => {
