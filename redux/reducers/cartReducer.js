@@ -22,6 +22,7 @@ export const cartReducer = createSlice({
         const newProduct = { ...action.payload.item, quantity: 1 };
         state.products.unshift(newProduct);
       }
+      // console.log("Cart state after adding product:", state.products);
     },
     increaseQuanity: (state, action) => {
       const index = state.products.findIndex(

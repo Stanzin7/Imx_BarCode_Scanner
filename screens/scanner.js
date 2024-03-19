@@ -20,9 +20,12 @@ const Scanner = () => {
   const token = useSelector((state) => state.user.accessToken);
   const cartProducts = useSelector(getCartProducts);
   const dispatch = useDispatch();
-  // console.log(cartProducts);
   const [scanned, setScanned] = useState(true);
   const [itemDetails, setItemDetails] = useState([]);
+
+  // useEffect(() => {
+  //   console.log("Cart products state updated:", cartProducts.products);
+  // }, [cartProducts.products]);
 
   const playSound = async (soundPath) => {
     try {
@@ -34,33 +37,32 @@ const Scanner = () => {
   };
 
   const handleBarcodeScanned = async ({ type, data }) => {
+    console.log(`Original barcode scanned data: ${data}`);
     if (!scanned) {
-      setScanned(true);
+      console.log("Processing new scan...");
+      setScanned(true); // This might need to be set to false immediately after processing starts
 
+      // Log to check if data is correctly received for every scan
+      console.log(`Received scan data before adjustment: ${data}`);
       const adjustedData = data.startsWith("0") ? data.substring(1) : data;
-      console.log("Scanned data is here:", adjustedData);
+      console.log(`Adjusted scan data for search: ${adjustedData}`);
+
       dispatch(searchItemByBarcode({ barcodeId: adjustedData, token }))
         .unwrap()
         .then((response) => {
           if (response) {
+            console.log("Product found:", response);
             playSound(require("../assets/sounds/Found.wav"));
+            dispatch(addProduct({ item: response, itemNo: response.itemNo }));
             setItemDetails((currentItems) => [response, ...currentItems]);
           } else {
             playSound(require("../assets/sounds/NotFound.wav"));
-            // .then(() => {
-            // Alert.alert(
-            //   "No item found",
-            //   "The barcode did not match any items."
-            // );
-            // });
           }
         })
         .catch((error) => {
-          console.error("Error fetching item details:", error);
           Alert.alert("Error", "Failed to fetch item details.");
         })
         .finally(() => {
-          // Prevent further scans
           setScanned(true);
         });
     }
@@ -77,17 +79,6 @@ const Scanner = () => {
 
   const handleScanAgainPress = () => {
     setScanned(false);
-    console.log(itemDetails);
-    if (itemDetails.length > 0) {
-      const scannedItem = itemDetails[0];
-      console.log(scannedItem);
-      dispatch(
-        addProduct({
-          item: scannedItem,
-          itemNo: scannedItem.itemNo,
-        })
-      );
-    }
   };
 
   return (
@@ -142,14 +133,11 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   container: {
-    // flex: 1,
-    // justifyContent: "flex-start",
-    // backgroundColor: "red",
     alignItems: "center",
   },
   camera: {
     width: "100%",
-    height: 100, // Adjusted for better view
+    height: 100,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -158,16 +146,13 @@ const styles = StyleSheet.create({
   },
   frame: {
     width: 350,
-    height: 50, // Adjusted for a square frame
+    height: 50,
     borderWidth: 2,
     borderColor: "#FF0000",
     backgroundColor: "transparent",
   },
   buttonContainer: {
-    // justifyContent: "center",
-    // alignItems: "center",
     width: "90%",
-    // padding: 20,
     position: "absolute",
     backgroundColor: "orange",
     color: "green",

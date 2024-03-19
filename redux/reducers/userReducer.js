@@ -20,7 +20,7 @@ export const loginUser = createAsyncThunk(
         }
       );
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       if (!response.ok) throw new Error(data.message || "Could not log in");
       return data;
     } catch (error) {
@@ -47,7 +47,6 @@ export const fetchItem = createAsyncThunk(
         }
       );
       const data = await response.json();
-      console.log(data);
       if (!response.ok) throw new Error(data.message || "Could not fetch item");
 
       return data;
@@ -60,7 +59,7 @@ export const searchItemByBarcode = createAsyncThunk(
   "user/searchItemByBarcode",
 
   async ({ barcodeId, token }, { rejectWithValue }) => {
-    console.log("Using token for request:", token);
+    // console.log("Using token for request:", token);
 
     try {
       const pageNo = 0;
@@ -77,32 +76,15 @@ export const searchItemByBarcode = createAsyncThunk(
         }
       );
 
-      // console.log("Response Status:", response.status); // Log the response status code
-      // // Optionally log all headers (some environments might not allow direct logging of headers object)
-      // response.headers.forEach((value, key) => {
-      //   console.log(`${key}: ${value}`);
-      // });
-
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Search API response:", data);
         throw new Error(data.message || "Could not find item by barcode");
       }
-      const matchingItem = data.find((item) => {
-        return (
-          item.upc === barcodeId ||
-          item.upc2 === barcodeId ||
-          item.upc3 === barcodeId ||
-          item.upc4 === barcodeId ||
-          item.itemNo === barcodeId
-        );
-      });
-      console.log("Response Data:", JSON.stringify(matchingItem, null, 2));
 
-      // console.log(matchingItem);
-
-      return matchingItem || null;
+      const item = Array.isArray(data) ? data[0] : data;
+      // console.log("Response Data:", JSON.stringify(matchingItem, null, 2));
+      return item || null;
       // return data.length > 0 ? data[0] : null;
     } catch (error) {
       console.error("Search API error:", error);

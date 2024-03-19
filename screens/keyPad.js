@@ -32,7 +32,7 @@ const KeyPad = () => {
         .unwrap()
         .then((response) => {
           if (response) {
-            // const scannedItem = itemDetails[0];
+            console.log(response);
             playSound(require("../assets/sounds/Found.wav"));
             setItemDetails((currentItems) => [response, ...currentItems]);
             dispatch(
