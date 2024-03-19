@@ -22,10 +22,11 @@ const Scanner = () => {
   const dispatch = useDispatch();
   const [scanned, setScanned] = useState(true);
   const [itemDetails, setItemDetails] = useState([]);
+  const [cameraKey, setCameraKey] = useState(0);
 
-  // useEffect(() => {
-  //   console.log("Cart products state updated:", cartProducts.products);
-  // }, [cartProducts.products]);
+  useEffect(() => {
+    console.log("Initial scanned state:", scanned); // Log initial scanned state
+  }, []);
 
   const playSound = async (soundPath) => {
     try {
@@ -37,21 +38,19 @@ const Scanner = () => {
   };
 
   const handleBarcodeScanned = async ({ type, data }) => {
-    console.log(`Original barcode scanned data: ${data}`);
+    console.log("handleBarcodeScanned called", { scanned, data }); // Check if function is called when it shouldn't be
     if (!scanned) {
       console.log("Processing new scan...");
-      setScanned(true); // This might need to be set to false immediately after processing starts
+      setScanned(true);
 
-      // Log to check if data is correctly received for every scan
-      console.log(`Received scan data before adjustment: ${data}`);
       const adjustedData = data.startsWith("0") ? data.substring(1) : data;
-      console.log(`Adjusted scan data for search: ${adjustedData}`);
+      console.log("Dispatching searchItemByBarcode with:", adjustedData);
 
       dispatch(searchItemByBarcode({ barcodeId: adjustedData, token }))
         .unwrap()
         .then((response) => {
+          console.log("Search item response:", response); // Log the response from the search
           if (response) {
-            console.log("Product found:", response);
             playSound(require("../assets/sounds/Found.wav"));
             dispatch(addProduct({ item: response, itemNo: response.itemNo }));
             setItemDetails((currentItems) => [response, ...currentItems]);
@@ -61,8 +60,10 @@ const Scanner = () => {
         })
         .catch((error) => {
           Alert.alert("Error", "Failed to fetch item details.");
+          console.error("Search item error:", error); // Log any errors
         })
         .finally(() => {
+          console.log("Setting scanned to true in finally block");
           setScanned(true);
         });
     }
@@ -78,13 +79,15 @@ const Scanner = () => {
   }
 
   const handleScanAgainPress = () => {
-    setScanned(false);
+    console.log("Scan Again button pressed");
+    setScanned(false); // Allow scanning again
+    setCameraKey((prevKey) => prevKey + 1);
   };
-
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.container}>
         <CameraView
+          key={cameraKey}
           style={styles.camera}
           onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
         >

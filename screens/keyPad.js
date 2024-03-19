@@ -26,12 +26,19 @@ const KeyPad = () => {
   };
 
   const handleManualItemSubmit = async () => {
-    if (upc.trim()) {
-      const adjustedData = upc.startsWith("0") ? upc.substring(1) : upc;
-      dispatch(searchItemByBarcode({ barcodeId: adjustedData, token }))
+    if (upc) {
+      console.log(upc);
+      dispatch(searchItemByBarcode({ barcodeId: upc, token }))
         .unwrap()
         .then((response) => {
-          if (response) {
+          if (
+            response &&
+            (response.itemNo === upc ||
+              response.upc === upc ||
+              response.upc2 === upc ||
+              response.upc3 === upc ||
+              response.upc4 === upc)
+          ) {
             console.log(response);
             playSound(require("../assets/sounds/Found.wav"));
             setItemDetails((currentItems) => [response, ...currentItems]);
