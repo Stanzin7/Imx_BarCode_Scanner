@@ -93,6 +93,71 @@ export const searchItemByBarcode = createAsyncThunk(
   }
 );
 
+export const submitOrder = createAsyncThunk(
+  "user/submitOrder",
+  async (orderDetails, { getState, rejectWithValue }) => {
+    const state = getState();
+    try {
+      const response = await fetch(
+        "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/Webordersrecs",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${state.user.accessToken}`,
+            ClientID: "imxshop",
+            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+          },
+          body: JSON.stringify(orderDetails),
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to submit order");
+      }
+      return await response.json();
+    } catch (error) {
+      return rejectWithValue(error.message || error.toString());
+    }
+  }
+);
+
+export const fetchCompanyInfo = createAsyncThunk(
+  "user/fetchCompanyInfo",
+  async (_, { getState, rejectWithValue }) => {
+    const state = getState();
+    try {
+      const response = await fetch(
+        "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/Webconfigrecs",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${state.user.accessToken}`,
+            ClientID: "imxshop",
+            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+          },
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch company info");
+      }
+      const data = await response.json();
+      return {
+        addressLine1: data.addressLine1,
+        addressLine2: data.addressLine2,
+        phone: data.phone,
+        fax1: data.fax1,
+        fax2: data.fax2,
+        newCustomerEmail: data.newCustomerEmail,
+        newOrderEmail: data.newOrderEmail,
+      };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const initialState = {
   user: null,
   accessToken: null,
@@ -100,7 +165,8 @@ const initialState = {
   error: null,
   item: null,
   searchResult: null,
-  // Consider removing clientID and clientSecret if they're not dynamically updated
+  searchResult: null,
+  companyInfo: null,
 };
 
 const userReducer = createSlice({
@@ -108,7 +174,6 @@ const userReducer = createSlice({
   initialState,
   reducers: {
     setLogout: (state) => {
-      // Reset the state to its initial state or ensure all sensitive info is cleared
       Object.assign(state, initialState);
     },
   },
@@ -120,10 +185,14 @@ const userReducer = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.emailAddress;
+        const customerInfo = action.payload.customers[0];
+        state.user = {
+          emailAddress: action.payload.emailAddress,
+          lastLogin: action.payload.lastLogin,
+          acctNo: customerInfo.acctNo,
+          company: customerInfo.company,
+        };
         state.accessToken = action.payload.token;
-        state.clientID = action.payload.clientID;
-        state.clientSecret = action.payload.clientSecret;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -150,6 +219,19 @@ const userReducer = createSlice({
       .addCase(searchItemByBarcode.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchCompanyInfo.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchCompanyInfo.fulfilled, (state, action) => {
+        // Update the state with the fetched company info
+        state.companyInfo = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchCompanyInfo.rejected, (state, action) => {
+        // Optionally handle error
+        state.error = action.payload;
+        state.isLoading = false;
       });
   },
 });

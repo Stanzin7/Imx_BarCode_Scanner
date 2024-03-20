@@ -74,7 +74,8 @@ const ScannedItemCard = ({
           ) : (
             <Image
               source={require("../assets/images/notFound.png")}
-              style={styles.img}
+              style={{ width: 120, height: 120 }}
+              contentFit="contain"
             />
           )}
         </View>

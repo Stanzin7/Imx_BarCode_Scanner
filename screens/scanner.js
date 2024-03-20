@@ -22,6 +22,7 @@ const Scanner = () => {
   const dispatch = useDispatch();
   const [scanned, setScanned] = useState(true);
   const [itemDetails, setItemDetails] = useState([]);
+  const [isCameraVisible, setIsCameraVisible] = useState(true); // For camera visibility
   const [cameraKey, setCameraKey] = useState(0);
 
   useEffect(() => {
@@ -51,11 +52,13 @@ const Scanner = () => {
         .then((response) => {
           console.log("Search item response:", response); // Log the response from the search
           if (response) {
+            setIsCameraVisible(false);
             playSound(require("../assets/sounds/Found.wav"));
             dispatch(addProduct({ item: response, itemNo: response.itemNo }));
             setItemDetails((currentItems) => [response, ...currentItems]);
           } else {
             playSound(require("../assets/sounds/NotFound.wav"));
+            setIsCameraVisible(false);
           }
         })
         .catch((error) => {
@@ -79,23 +82,33 @@ const Scanner = () => {
   }
 
   const handleScanAgainPress = () => {
+    // shutit off!
     console.log("Scan Again button pressed");
+    setIsCameraVisible(true);
     setScanned(false); // Allow scanning again
     setCameraKey((prevKey) => prevKey + 1);
   };
+
+  const cameraStyle = isCameraVisible ? styles.camera : styles.cameraHidden;
+  const flatListStyle = isCameraVisible
+    ? styles.flatList
+    : styles.flatListExpanded;
+
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
-      <View style={styles.container}>
-        <CameraView
-          key={cameraKey}
-          style={styles.camera}
-          onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-        >
-          <View style={styles.overlay}>
-            <View style={styles.frame} />
-          </View>
-        </CameraView>
-      </View>
+      {isCameraVisible && (
+        <View style={cameraStyle}>
+          <CameraView
+            key={cameraKey}
+            style={StyleSheet.absoluteFill}
+            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+          >
+            <View style={styles.overlay}>
+              <View style={styles.frame} />
+            </View>
+          </CameraView>
+        </View>
+      )}
       <FlatList
         data={cartProducts.products}
         contentContainerStyle={{
