@@ -19,11 +19,13 @@ import {
 import ScannedItemCard from "../components/ProductCard";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { getRoundedTotalEstimatedWeight } from "../redux/reducers/cartReducer";
 import { submitOrder } from "../redux/reducers/userReducer";
 
 const Cart = () => {
   const cartProducts = useSelector((state) => getCartProducts(state));
   const totalprice = useSelector((state) => gettotalPriceOfProduct(state));
+  const totalWeight = useSelector(getRoundedTotalEstimatedWeight);
   const [shippingOption, setShippingOption] = useState("Delivery");
   const [poNumber, setPoNumber] = useState("");
   const [message, setMessage] = useState("");
@@ -35,6 +37,7 @@ const Cart = () => {
   const company = user?.company;
   const accNo = user?.acctNo;
 
+  console.log(cartProducts);
   const handleCheckout = () => {
     if (products.length === 0) {
       Alert.alert(
@@ -79,6 +82,8 @@ const Cart = () => {
     dispatch(submitOrder(orderDetails))
       .then(() => {
         dispatch(clearCart());
+        setPoNumber("");
+        setMessage("");
         Alert.alert(
           "Order Submitted",
           "Your order has been successfully placed!",
@@ -153,6 +158,7 @@ const Cart = () => {
                   message={message}
                   setMessage={setMessage}
                   handleCheckout={handleCheckout}
+                  totalWeight={totalWeight}
                 />
               }
               ListEmptyComponent={

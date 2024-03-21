@@ -77,6 +77,17 @@ export const gettotalPriceOfProduct = (state) =>
     0
   );
 
+export const getTotalEstimatedWeight = (state) =>
+  state.entities.cart.products.reduce(
+    (totalWeight, product) =>
+      totalWeight + (product.netLbwght || 0) * product.quantity,
+    0
+  );
+export const getRoundedTotalEstimatedWeight = (state) => {
+  const weight = getTotalEstimatedWeight(state); // Use the existing selector
+  return +parseFloat(weight).toFixed(2); // Rounds to two decimal places and converts back to number
+};
+
 export const {
   addProduct,
   decreaseQuanity,

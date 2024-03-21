@@ -13,6 +13,7 @@ const Footer = ({
   message, // Received message
   setMessage, // Received setMessage
   handleCheckout, // Assuming this function is passed down as a prop
+  totalWeight,
 }) => (
   <View style={styles.footerContainer}>
     <View style={styles.totalContainer}>
@@ -22,7 +23,7 @@ const Footer = ({
 
     <View style={styles.totalWeightContainer}>
       <Text style={styles.totalText}>Total Estimated Weight:</Text>
-      <Text style={styles.priceText}>20</Text>
+      <Text style={styles.priceText}>{totalWeight} lbs.</Text>
     </View>
 
     <View style={styles.shippingTotalContainer}>

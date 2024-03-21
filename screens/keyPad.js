@@ -29,7 +29,6 @@ const KeyPad = () => {
 
   const playSound = async (soundPath) => {
     if (soundEnabled) {
-      // Check if sound is enabled
       try {
         const { sound } = await Audio.Sound.createAsync(soundPath);
         await sound.playAsync();
