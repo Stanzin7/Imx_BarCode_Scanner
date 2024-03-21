@@ -139,21 +139,33 @@ export const fetchCompanyInfo = createAsyncThunk(
         }
       );
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to fetch company info");
+        let errorMessage = "Failed to fetch company info";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If the response is not JSON or another parsing error occurs, we'll use the default error message
+        }
+        return rejectWithValue(errorMessage);
       }
+
       const data = await response.json();
+      // Ensure all properties exist to avoid "Cannot read property of null" errors
+      console.log(data);
       return {
-        addressLine1: data.addressLine1,
-        addressLine2: data.addressLine2,
-        phone: data.phone,
-        fax1: data.fax1,
-        fax2: data.fax2,
-        newCustomerEmail: data.newCustomerEmail,
-        newOrderEmail: data.newOrderEmail,
+        addressLine1: data.addressLine1 || "",
+        addressLine2: data.addressLine2 || "",
+        phone: data.phone || "",
+        fax1: data.fax1 || "",
+        fax2: data.fax2 || "",
+        newCustomerEmail: data.newCustomerEmail || "",
+        newOrderEmail: data.newOrderEmail || "",
       };
     } catch (error) {
-      return rejectWithValue(error.message);
+      // Handle the error case where the error is not from the response
+      return rejectWithValue(
+        error instanceof Error ? error.message : "An unknown error occurred"
+      );
     }
   }
 );
@@ -164,7 +176,6 @@ const initialState = {
   isLoading: false,
   error: null,
   item: null,
-  searchResult: null,
   searchResult: null,
   companyInfo: null,
 };

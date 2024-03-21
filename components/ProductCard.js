@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
 import { Fontisto } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect } from "react";
 import CounterNew from "./Counter";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -24,6 +24,28 @@ const ScannedItemCard = ({
 }) => {
   const [isOpen, setisOpen] = useState(true);
   const dispatch = useDispatch();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageUri, setImageUri] = useState(
+    `https://imxshop.cmxsoftware.com/capitalItemImages/${itemNo}/0thn.jpg`
+  );
+
+  useEffect(() => {
+    const checkImage = async () => {
+      try {
+        const response = await fetch(imageUri, { method: "HEAD" });
+        if (response.ok) {
+          setImageLoaded(true);
+        } else {
+          throw new Error("Image does not exist");
+        }
+      } catch (error) {
+        // If there's an error (image does not exist), load the local notFound image
+        setImageUri(require("../assets/images/notFound.png"));
+      }
+    };
+
+    checkImage();
+  }, [itemNo]);
 
   function handleCloseButton() {
     dispatch(deleteProduct({ itemNo }));
@@ -63,21 +85,20 @@ const ScannedItemCard = ({
       </Pressable>
       <View style={styles.subCon}>
         <View style={{ flex: 0.4, alignItems: "center" }}>
-          {itemNo ? (
-            <Image
-              source={{
-                uri: `https://imxshop.cmxsoftware.com/capitalItemImages/${itemNo}/0thn.jpg`,
-              }}
-              style={styles.img}
-              contentFit="contain"
-            />
-          ) : (
-            <Image
-              source={require("../assets/images/notFound.png")}
-              style={{ width: 120, height: 120 }}
-              contentFit="contain"
-            />
-          )}
+          <Image
+            source={
+              imageLoaded
+                ? { uri: imageUri }
+                : require("../assets/images/notFound.png")
+            }
+            style={styles.img}
+            contentFit="contain"
+            onError={() => {
+              // Fallback for any other errors
+              setImageUri(require("../assets/images/notFound.png"));
+              setImageLoaded(false);
+            }}
+          />
         </View>
         <View style={{ flex: 0.6 }}>
           <Text style={[styles.itemText1]}>Item#: {itemNo}</Text>

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, StyleSheet, FlatList, Alert } from "react-native";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  FlatList,
+  Alert,
+  Platform,
+} from "react-native";
 import Colors from "../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -7,21 +14,28 @@ import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
+
 import { Audio } from "expo-av";
+import { StatusBar } from "expo-status-bar";
 
 const KeyPad = () => {
   const cartProducts = useSelector(getCartProducts);
   const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
   const dispatch = useDispatch();
   const [upc, setUPC] = useState("");
+  // const soundEnabled = useSelector((state) => state.user.soundEnabled);
   const [itemDetails, setItemDetails] = useState([]);
+  const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
 
   const playSound = async (soundPath) => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(soundPath);
-      await sound.playAsync();
-    } catch (error) {
-      console.error("Error playing sound:", error);
+    if (soundEnabled) {
+      // Check if sound is enabled
+      try {
+        const { sound } = await Audio.Sound.createAsync(soundPath);
+        await sound.playAsync();
+      } catch (error) {
+        console.error("Error playing sound:", error);
+      }
     }
   };
 
@@ -65,7 +79,7 @@ const KeyPad = () => {
       <View style={styles.container}>
         <TextInput
           style={styles.input}
-          placeholder="Enter UPC"
+          placeholder="Enter Upc or Item No..."
           placeholderTextColor={Colors.dark}
           keyboardType="name-phone-pad"
           returnKeyType="done"
@@ -105,7 +119,9 @@ const KeyPad = () => {
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     backgroundColor: "transparent",
+    // marginBottom: 0,
   },
   container: {
     position: "absolute", // Position the keypad container absolutely
@@ -132,7 +148,6 @@ const styles = StyleSheet.create({
   },
   flatList: {
     marginTop: 20,
-    marginBottom: 0,
   },
 });
 

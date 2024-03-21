@@ -25,6 +25,15 @@ export default function Tabs() {
               color={color}
             />
           ),
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+          headerTitle: "IMX",
         }}
       />
       <Tab.Screen
@@ -35,6 +44,15 @@ export default function Tabs() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="keypad" color={color} size={size} />
           ),
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+          headerTitle: "IMX",
         }}
       />
       <Tab.Screen
@@ -45,6 +63,15 @@ export default function Tabs() {
           tabBarIcon: ({ color, size }) => (
             <FontAwesome5 name="shopping-cart" size={size} color={color} />
           ),
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+          headerTitle: "IMX",
         }}
       />
       <Tab.Screen
@@ -55,6 +82,15 @@ export default function Tabs() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="reorder-three-outline" size={size} color={color} />
           ),
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+          headerTitle: "IMX",
         }}
       />
     </Tab.Navigator>

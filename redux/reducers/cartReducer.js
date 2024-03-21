@@ -5,12 +5,17 @@ import { submitOrder } from "./userReducer";
 const initialState = {
   products: [],
   totalPrice: 0,
+  soundEnabled: true,
 };
 
 export const cartReducer = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    toggleSound(state) {
+      state.soundEnabled = !state.soundEnabled;
+      console.log(state.soundEnabled);
+    },
     addProduct: (state, action) => {
       const index = state.products.findIndex(
         (item) => item?.itemNo === action.payload.itemNo
@@ -78,6 +83,7 @@ export const {
   increaseQuanity,
   deleteProduct,
   clearCart,
+  toggleSound,
 } = cartReducer.actions;
 
 export default cartReducer.reducer;

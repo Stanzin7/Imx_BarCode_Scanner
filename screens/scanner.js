@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Alert,
   FlatList,
+  Platform,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera/next";
 import ScannedItemCard from "../components/ProductCard";
@@ -14,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 import { Audio } from "expo-av";
+import { StatusBar } from "expo-status-bar";
 
 const Scanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -24,17 +26,21 @@ const Scanner = () => {
   const [itemDetails, setItemDetails] = useState([]);
   const [isCameraVisible, setIsCameraVisible] = useState(true); // For camera visibility
   const [cameraKey, setCameraKey] = useState(0);
+  const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
 
   useEffect(() => {
     console.log("Initial scanned state:", scanned); // Log initial scanned state
   }, []);
 
   const playSound = async (soundPath) => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(soundPath);
-      await sound.playAsync();
-    } catch (error) {
-      console.error("Error playing sound:", error);
+    if (soundEnabled) {
+      // Check if sound is enabled
+      try {
+        const { sound } = await Audio.Sound.createAsync(soundPath);
+        await sound.playAsync();
+      } catch (error) {
+        console.error("Error playing sound:", error);
+      }
     }
   };
 
@@ -146,6 +152,7 @@ const Scanner = () => {
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     backgroundColor: "transparent",
   },
   container: {
