@@ -28,9 +28,9 @@ const Scanner = () => {
   const [cameraKey, setCameraKey] = useState(0);
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
 
-  useEffect(() => {
-    console.log("Initial scanned state:", scanned); // Log initial scanned state
-  }, []);
+  // useEffect(() => {
+  //   console.log("Initial scanned state:", scanned); // Log initial scanned state
+  // }, []);
 
   const playSound = async (soundPath) => {
     if (soundEnabled) {
@@ -38,7 +38,7 @@ const Scanner = () => {
       try {
         const { sound } = await Audio.Sound.createAsync(soundPath);
         await sound.playAsync();
-      } catch (error) {
+      } catch (error) {```````````````````
         console.error("Error playing sound:", error);
       }
     }

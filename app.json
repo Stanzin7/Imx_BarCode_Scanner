@@ -1,21 +1,27 @@
 {
   "expo": {
-    "name": "Demo",
-    "slug": "Demo",
+    "name": "Imx",
+    "slug": "Imx",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/splash1.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone for recording."
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "NSCameraUsageDescription": "This app requires camera access to take photos.",
+        "NSMicrophoneUsageDescription": "This app requires microphone access to record audio."
       }
     },
     "android": {
@@ -23,18 +29,31 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["android.permission.RECORD_AUDIO"]
-    },
-    "web": {
-      "favicon": "./assets/images/favicon.png"
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.stanzin7.Imx"
     },
     "plugins": [
       [
-        "expo-av",
+        "expo-camera",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
         }
       ]
-    ]
+    ],
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "282128ed-2625-41bf-b576-733cfdb31ab9"
+      }
+    }
   }
 }
