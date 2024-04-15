@@ -27,7 +27,7 @@
     "react-redux": "^9.1.0",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
-    "typescript": "^5.3.0"
+    "expo-barcode-scanner": "~12.9.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

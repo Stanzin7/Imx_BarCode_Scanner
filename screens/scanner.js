@@ -24,7 +24,7 @@ const Scanner = () => {
   const dispatch = useDispatch();
   const [scanned, setScanned] = useState(true);
   const [itemDetails, setItemDetails] = useState([]);
-  const [isCameraVisible, setIsCameraVisible] = useState(true); // For camera visibility
+  const [isCameraVisible, setIsCameraVisible] = useState(false); // For camera visibility
   const [cameraKey, setCameraKey] = useState(0);
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
 
@@ -38,14 +38,14 @@ const Scanner = () => {
       try {
         const { sound } = await Audio.Sound.createAsync(soundPath);
         await sound.playAsync();
-      } catch (error) {```````````````````
+      } catch (error) {
         console.error("Error playing sound:", error);
       }
     }
   };
 
   const handleBarcodeScanned = async ({ type, data }) => {
-    console.log("handleBarcodeScanned called", { scanned, data }); // Check if function is called when it shouldn't be
+    // console.log("handleBarcodeScanned called", { scanned, data }); // Check if function is called when it shouldn't be
     if (!scanned) {
       console.log("Processing new scan...");
       setScanned(true);
@@ -78,13 +78,35 @@ const Scanner = () => {
     }
   };
 
-  if (!permission?.granted) {
+  if (!permission) {
+    // Permission status is still loading
     return (
       <View style={styles.container}>
-        <Text>No access to camera</Text>
-        <Button title="Allow Camera" onPress={requestPermission} />
+        <Text>Checking camera permissions...</Text>
       </View>
     );
+  } else if (!permission.granted) {
+    if (permission.status === "undetermined") {
+      // The user has not been asked for this permission
+      return (
+        <View style={styles.container}>
+          <Text>We need access to your camera for scanning</Text>
+          <Button title="Allow Camera" onPress={requestPermission} />
+        </View>
+      );
+    } else if (permission.status === "denied") {
+      // The user has denied the permission
+      return (
+        <View style={styles.container}>
+          <Text>
+            No access to camera. Please enable camera permission in settings to
+            use this feature.
+          </Text>
+          <Button title="Open Settings" onPress={openSettings} />{" "}
+          {/* openSettings is a function you need to implement */}
+        </View>
+      );
+    }
   }
 
   const handleScanAgainPress = () => {
@@ -139,11 +161,7 @@ const Scanner = () => {
         )}
       />
       <View style={styles.buttonContainer}>
-        <Button
-          color={"black"}
-          title="Scan Again"
-          onPress={handleScanAgainPress}
-        />
+        <Button color={"black"} title="Scan" onPress={handleScanAgainPress} />
       </View>
     </SafeAreaView>
   );

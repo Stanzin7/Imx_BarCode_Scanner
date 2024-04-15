@@ -92,6 +92,35 @@ export const searchItemByBarcode = createAsyncThunk(
     }
   }
 );
+export const previousOrder = createAsyncThunk(
+  "user/previousOrder",
+  async ({ acctNo, token }, { rejectWithValue }) => {
+    const url = `https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/webcartshoprecs/${acctNo}`;
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Clientid: "imxshop",
+          Clientsecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+        },
+      });
+
+      const text = await response.text(); // Get text to avoid JSON parsing errors initially
+      if (!response.ok) {
+        console.error("Error fetching previous orders:", text);
+        throw new Error(`Could not fetch orders: ${response.status}`);
+      }
+
+      const data = JSON.parse(text); // Parse text to JSON manually
+      console.log("Fetched previous orders with hardcoded account:", data);
+      return data;
+    } catch (error) {
+      console.error("Catch error:", error);
+      return rejectWithValue(error.toString());
+    }
+  }
+);
 
 export const submitOrder = createAsyncThunk(
   "user/submitOrder",

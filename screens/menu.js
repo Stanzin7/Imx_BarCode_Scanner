@@ -7,13 +7,19 @@ import {
   StyleSheet,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCompanyInfo, setLogout } from "../redux/reducers/userReducer";
+import {
+  fetchCompanyInfo,
+  previousOrder,
+  setLogout,
+} from "../redux/reducers/userReducer";
 import { toggleSound } from "../redux/reducers/cartReducer";
 
 const Menu = () => {
   const dispatch = useDispatch();
   const companyInfo = useSelector((state) => state.user.companyInfo);
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
+  const token = useSelector((state) => state.user.accessToken);
+  const acctNo = useSelector((state) => state.user.user.acctNo);
 
   const handleLogout = () => {
     dispatch(setLogout());
@@ -23,12 +29,13 @@ const Menu = () => {
     console.log(`${option} was selected`);
     if (option === "Play Sound") {
       dispatch(toggleSound()); // Toggle sound option
+    } else if (option === "PreviousOrder") {
+      dispatch(previousOrder({ acctNo, token }));
     }
   };
-
   useEffect(() => {
     dispatch(fetchCompanyInfo());
-  }, [dispatch]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,7 +51,7 @@ const Menu = () => {
         </View>
         <View style={styles.menuItemRow}>
           <TouchableOpacity
-            onPress={() => handleMenuOption("Location")}
+            onPress={() => handleMenuOption("PreviousOrder")}
             activeOpacity={0.1}
           >
             <Text style={styles.menuItem}>PreviousOrder</Text>
