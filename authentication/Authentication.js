@@ -7,14 +7,17 @@ import {
   TouchableOpacity,
   Image,
   KeyboardAvoidingView,
+  Platform,
   ActivityIndicator, // Import ActivityIndicator for loading indication
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { loginUser } from "../redux/reducers/userReducer";
 
 const Authentication = () => {
+  const [companyName, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
 
   const isLoading = useSelector((state) => state.user.isLoading);
@@ -22,8 +25,25 @@ const Authentication = () => {
   const error = useSelector((state) => state.user.error);
 
   const handleLogin = () => {
-    dispatch(loginUser({ emailAddress: email, password: password }));
-    console.log(email, password);
+    const newErrors = {};
+    if (!companyName) newErrors.companyName = "Company name is required";
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
+    if (email && !validateEmail(email))
+      newErrors.email = "Please enter a valid email";
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      dispatch(
+        loginUser({ emailAddress: email, password: password, companyName })
+      );
+      console.log(email, password);
+    }
+  };
+
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
   };
 
   return (
@@ -47,25 +67,59 @@ const Authentication = () => {
           </View>
           <Text style={styles.welcomeText}>Welcome</Text>
           <KeyboardAvoidingView behavior="padding" style={styles.inputGroup}>
+            <Text style={styles.title}>Company Name</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
+              style={[styles.input, errors.companyName && styles.errorInput]}
+              placeholder="Enter your company name"
+              value={companyName}
+              onChangeText={(text) => {
+                setCompanyName(text);
+                setErrors((prevState) => ({ ...prevState, companyName: "" }));
+              }}
             />
+            {errors.companyName && (
+              <Text style={styles.errorText}>{errors.companyName}</Text>
+            )}
+
+            <Text style={styles.title}>Email</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Password"
+              style={[styles.input, errors.email && styles.errorInput]}
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setErrors((prevState) => ({ ...prevState, email: "" }));
+              }}
+              keyboardType="email-address"
+            />
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
+
+            <Text style={styles.title}>Password</Text>
+            <TextInput
+              style={[styles.input, errors.password && styles.errorInput]}
+              placeholder="Enter your password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                setErrors((prevState) => ({ ...prevState, password: "" }));
+              }}
               secureTextEntry
             />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </KeyboardAvoidingView>
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginText}>Login</Text>
           </TouchableOpacity>
           {/* Display error message if there's an error */}
-          {error && <Text style={{ color: "red" }}>{error}</Text>}
+          {error && (
+            <Text style={{ color: "red", marginTop: 5, textAlign: "center" }}>
+              {error}
+            </Text>
+          )}
         </>
       )}
     </View>
@@ -73,18 +127,18 @@ const Authentication = () => {
 };
 const styles = StyleSheet.create({
   container: {
-    flex: 0.8,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   imgContainer: {
-    paddingTop: 50,
+    // paddingTop: 50,
     justifyContent: "center",
     alignItems: "center",
   },
   logo: {
-    width: 300,
-    height: 300,
+    width: 220,
+    height: 220,
   },
   welcomeText: {
     marginBottom: 30,
@@ -96,25 +150,38 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   input: {
-    padding: 15,
+    padding: Platform.OS === "ios" ? 15 : 8,
     borderWidth: 1,
-    borderColor: "black",
-    marginBottom: 5,
-    fontSize: 18,
-    borderRadius: 20,
+    borderColor: "grey",
+    marginBottom: 8,
+    fontSize: 16,
+    borderRadius: 10,
     width: "100%",
   },
+  errorInput: {
+    borderColor: "red",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 6,
+    marginLeft: 6,
+  },
+  title: {
+    fontSize: 15,
+    marginBottom: 5,
+    marginLeft: 6,
+  },
   loginButton: {
-    alignItems: "center",
-    justifyContent: "center",
     marginTop: 10,
-    backgroundColor: "lightblue",
-    paddingVertical: 13,
-    paddingHorizontal: 30,
-    borderRadius: 40,
+    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    borderRadius: 10,
+    width: "80%",
   },
   loginText: {
     fontSize: 18,
+    color: "white",
+    textAlign: "center",
   },
 });
 

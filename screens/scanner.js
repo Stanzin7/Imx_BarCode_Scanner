@@ -8,6 +8,10 @@ import {
   Alert,
   FlatList,
   Platform,
+  TouchableOpacity,
+  Linking,
+  Dimensions,
+  ImageBackground,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera/next";
 import ScannedItemCard from "../components/ProductCard";
@@ -16,9 +20,12 @@ import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
+import { Camera } from "expo-camera";
+import Colors from "../constants/Colors";
 
 const Scanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
+  const [androidPermission, setAndroidPermission] = useState(0);
   const token = useSelector((state) => state.user.accessToken);
   const cartProducts = useSelector(getCartProducts);
   const dispatch = useDispatch();
@@ -31,6 +38,17 @@ const Scanner = () => {
   // useEffect(() => {
   //   console.log("Initial scanned state:", scanned); // Log initial scanned state
   // }, []);
+
+  const askCameraPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    console.log("Camera permission status:", status);
+    if (status !== "granted") {
+      // alert('Permission to access camera was denied');
+      setAndroidPermission(-1);
+    } else {
+      setAndroidPermission(1);
+    }
+  };
 
   const playSound = async (soundPath) => {
     if (soundEnabled) {
@@ -78,35 +96,60 @@ const Scanner = () => {
     }
   };
 
-  if (!permission) {
-    // Permission status is still loading
+  if (Platform.OS == "ios") {
+    if (permission && !permission?.granted) {
+      if (permission.status === "undetermined") {
+        // The user has not been asked for this permission
+        return (
+          <View style={styles.container}>
+            <Text>We need access to your camera for scanning</Text>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.btn}
+              onPress={requestPermission}
+            >
+              <Text style={{ color: "white" }}>Allow Camera</Text>
+            </TouchableOpacity>
+          </View>
+        );
+      } else if (permission.status === "denied") {
+        return (
+          <View style={styles.container}>
+            <Text>
+              No access to camera. Please enable camera permission in settings
+              to use this feature.
+            </Text>
+            {/* openSettings is a function you need to implement */}
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.btn}
+              onPress={() => {
+                Linking.openSettings();
+              }}
+            >
+              <Text style={{ color: "white" }}>Open Settings</Text>
+            </TouchableOpacity>
+          </View>
+        );
+      }
+    }
+  }
+
+  if (Platform.OS == "android" && androidPermission != 1) {
     return (
       <View style={styles.container}>
-        <Text>Checking camera permissions...</Text>
+        <Text>We need access to your camera for scanning</Text>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.btn}
+          onPress={() => {
+            askCameraPermission();
+          }}
+        >
+          <Text style={{ color: "white" }}>Allow Camera</Text>
+        </TouchableOpacity>
       </View>
     );
-  } else if (!permission.granted) {
-    if (permission.status === "undetermined") {
-      // The user has not been asked for this permission
-      return (
-        <View style={styles.container}>
-          <Text>We need access to your camera for scanning</Text>
-          <Button title="Allow Camera" onPress={requestPermission} />
-        </View>
-      );
-    } else if (permission.status === "denied") {
-      // The user has denied the permission
-      return (
-        <View style={styles.container}>
-          <Text>
-            No access to camera. Please enable camera permission in settings to
-            use this feature.
-          </Text>
-          <Button title="Open Settings" onPress={openSettings} />{" "}
-          {/* openSettings is a function you need to implement */}
-        </View>
-      );
-    }
   }
 
   const handleScanAgainPress = () => {
@@ -126,15 +169,27 @@ const Scanner = () => {
     <SafeAreaView style={styles.safeAreaContainer}>
       {isCameraVisible && (
         <View style={cameraStyle}>
-          <CameraView
-            key={cameraKey}
-            style={StyleSheet.absoluteFill}
-            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-          >
-            <View style={styles.overlay}>
-              <View style={styles.frame} />
-            </View>
-          </CameraView>
+          {Platform.OS === "ios" ? (
+            <CameraView
+              key={cameraKey}
+              style={StyleSheet.absoluteFill}
+              onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+            >
+              <View style={styles.overlay}>
+                <View style={styles.frame} />
+              </View>
+            </CameraView>
+          ) : (
+            <Camera
+              style={StyleSheet.absoluteFill}
+              type={Camera.Constants.Type.back}
+              onBarCodeScanned={scanned ? undefined : handleBarcodeScanned}
+            >
+              <View style={styles.overlay}>
+                <View style={styles.frame} />
+              </View>
+            </Camera>
+          )}
         </View>
       )}
       <FlatList
@@ -163,6 +218,11 @@ const Scanner = () => {
       <View style={styles.buttonContainer}>
         <Button color={"black"} title="Scan" onPress={handleScanAgainPress} />
       </View>
+      <ImageBackground
+        source={require("../assets/images/logo1.png")}
+        resizeMode="center"
+        style={[styles.fixed, styles.containter, { zIndex: -1 }]}
+      />
     </SafeAreaView>
   );
 };
@@ -175,6 +235,10 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: "center",
+    marginTop: 15,
+    width: "95%",
+    textAlign: "center",
+    alignSelf: "center",
   },
   camera: {
     width: "100%",
@@ -201,6 +265,23 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderRadius: 5,
     fontWeight: "bold",
+  },
+  btn: {
+    backgroundColor: Colors.main,
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  fixed: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  containter: {
+    width: Dimensions.get("window").width, //for full screen
+    height: Dimensions.get("window").height - 50, //for full screen
   },
 });
 

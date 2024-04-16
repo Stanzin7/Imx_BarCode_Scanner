@@ -4,4 +4,5 @@ export default {
   primary: "#007260",
   secondary: "#39B68D",
   grey: "#CCCCCC",
+  main: "#007AFF",
 };

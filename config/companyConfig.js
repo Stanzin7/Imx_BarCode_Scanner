@@ -1,22 +1,24 @@
 const companyConfigs = {
-  CAPITAL_SALES_COMPANY: {
-    baseUrl: "https://imxshop.cmxsoftware.com/home",
-    loginUrl:
-      "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/login/Login",
-    clientID: "imxshop",
-    clientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+  CAPITAL_SALES: {
+    baseUrl: process.env.EXPO_PUBLIC_CAPITAL_SALES_BASE_URL,
+    loginUrl: process.env.EXPO_PUBLIC_CAPITAL_SALES_LOGIN_URL,
+    apiUrl: process.env.EXPO_PUBLIC_CAPITAL_SALES_API_URL,
+    clientID: process.env.EXPO_PUBLIC_CAPITAL_SALES_CLIENT_ID,
+    clientSecret: process.env.EXPO_PUBLIC_CAPITAL_SALES_CLIENT_SECRET,
   },
   SOCKS_GALORE: {
-    baseUrl: "https://www.socksgalorews.com/home",
-    loginUrl: "https://www.socksgalorews.com/IMXSHOP_API_SOCKS/api/login/Login",
-    clientID: "imxshop",
-    clientSecret: "114550a3-3e36-42f9-9008-d97de72a411d",
+    baseUrl: process.env.EXPO_PUBLIC_SOCKS_GALORE_BASE_URL,
+    loginUrl: process.env.EXPO_PUBLIC_SOCKS_GALORE_LOGIN_URL,
+    apiUrl: process.env.EXPO_PUBLIC_SOCKS_GALORE_API_URL,
+    clientID: process.env.EXPO_PUBLIC_SOCKS_GALORE_CLIENT_ID,
+    clientSecret: process.env.EXPO_PUBLIC_SOCKS_GALORE_CLIENT_SECRET,
   },
   JACKSON_WHOLESALE: {
-    baseUrl: "https://www.socksgalorews.com/home",
-    loginUrl: "https://www.socksgalorews.com/IMXSHOP_API_SOCKS/api/login/Login",
-    clientID: "imxshop",
-    clientSecret: "114550a3-3e36-42f9-9008-d97de72a411d",
+    baseUrl: process.env.EXPO_PUBLIC_JACKSON_WHOLESALE_BASE_URL,
+    loginUrl: process.env.EXPO_PUBLIC_JACKSON_WHOLESALE_LOGIN_URL,
+    apiUrl: process.env.EXPO_PUBLIC_JACKSON_WHOLESALE_API_URL,
+    clientID: process.env.EXPO_PUBLIC_JACKSON_WHOLESALE_CLIENT_ID,
+    clientSecret: process.env.EXPO_PUBLIC_JACKSON_WHOLESALE_CLIENT_SECRET,
   },
 };
 

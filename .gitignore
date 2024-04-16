@@ -18,6 +18,10 @@ web-build/
 *.key
 *.mobileprovision
 
+# local env files
+.env*.local
+.env 
+
 # Metro
 .metro-health-check*
 

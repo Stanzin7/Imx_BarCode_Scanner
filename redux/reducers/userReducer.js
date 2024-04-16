@@ -1,27 +1,47 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import companyConfigs from "../../config/companyConfig";
+import { useSelector } from "react-redux";
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
-  async ({ emailAddress, password }, { rejectWithValue }) => {
+  async (
+    { emailAddress, password, companyName },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
-      const response = await fetch(
-        "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/login/Login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ClientID: "imxshop",
-            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
-          },
-          body: JSON.stringify({
-            EmailAddress: emailAddress,
-            Password: password,
-          }),
-        }
-      );
-      const data = await response.json();
+      const normalizedCompanyName = companyName
+        .trim()
+        .toUpperCase()
+        .replace(/_/g, "");
+      const companyKey = Object.keys(companyConfigs).find((key) => {
+        return key.toUpperCase().replace(/_/g, " ") === normalizedCompanyName;
+      });
+      if (!companyKey) {
+        throw new Error(`Company '${companyName}' not found in config`);
+      }
+
+      const company = companyConfigs[companyKey];
+      const response = await fetch(`${company.loginUrl}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ClientID: company.clientID,
+          ClientSecret: company.clientSecret,
+        },
+        body: JSON.stringify({
+          EmailAddress: emailAddress,
+          Password: password,
+        }),
+      });
+      let data = await response.json();
       // console.log(data);
-      if (!response.ok) throw new Error(data.message || "Could not log in");
+      if (!response.ok)
+        throw new Error(
+          `${
+            data.message || "Could not log in"
+          }\nplease check your credentials and try again`
+        );
+      data = { companyName: company }; // Simulated response with companyName
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -31,18 +51,22 @@ export const loginUser = createAsyncThunk(
 
 export const fetchItem = createAsyncThunk(
   "user/fetchItem",
-  async ({ itemNumber, acctNo, token }, { rejectWithValue }) => {
+  async ({ itemNumber, acctNo, token }, { getState, rejectWithValue }) => {
     try {
+      const state = getState();
+      const company = state?.user?.user?.company;
+      const apiUrl = company?.apiUrl;
       const response = await fetch(
-        `https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/itemrecs/${itemNumber}/${
-          acctNo || ""
-        }`,
+        // `https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/itemrecs/${itemNumber}/${
+        //   acctNo || ""
+        // }`,
+        `${apiUrl}/itemrecs/${itemNumber}/${acctNo || ""}`,
         {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
-            ClientID: "imxshop",
-            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+            ClientID: company.clientID,
+            ClientSecret: company.clientSecret,
           },
         }
       );
@@ -58,20 +82,23 @@ export const fetchItem = createAsyncThunk(
 export const searchItemByBarcode = createAsyncThunk(
   "user/searchItemByBarcode",
 
-  async ({ barcodeId, token }, { rejectWithValue }) => {
+  async ({ barcodeId, token }, { getState, rejectWithValue }) => {
     // console.log("Using token for request:", token);
-
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
     try {
       const pageNo = 0;
       const pageSize = 200; // Adjust pageSize if necessary
       const response = await fetch(
-        `https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/itemrecs/search/${barcodeId}/${pageNo}/${pageSize}`,
+        // `https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/itemrecs/search/${barcodeId}/${pageNo}/${pageSize}`,
+        `${apiUrl}/itemrecs/search/${barcodeId}/${pageNo}/${pageSize}`,
         {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
-            ClientID: "imxshop",
-            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+            ClientID: company.clientID,
+            ClientSecret: company.clientSecret,
           },
         }
       );
@@ -94,15 +121,19 @@ export const searchItemByBarcode = createAsyncThunk(
 );
 export const previousOrder = createAsyncThunk(
   "user/previousOrder",
-  async ({ acctNo, token }, { rejectWithValue }) => {
-    const url = `https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/webcartshoprecs/${acctNo}`;
+  async ({ acctNo, token }, { getState, rejectWithValue }) => {
+    // const url = `https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/webcartshoprecs/${acctNo}`;
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    const url = `${apiUrl}/webcartshoprecs/${acctNo}`;
     try {
       const response = await fetch(url, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-          Clientid: "imxshop",
-          Clientsecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+          Clientid: company.clientID,
+          Clientsecret: company.clientSecret,
         },
       });
 
@@ -126,16 +157,19 @@ export const submitOrder = createAsyncThunk(
   "user/submitOrder",
   async (orderDetails, { getState, rejectWithValue }) => {
     const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
     try {
       const response = await fetch(
-        "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/Webordersrecs",
+        // "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/Webordersrecs",
+        `${apiUrl}/Webordersrecs`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${state.user.accessToken}`,
-            ClientID: "imxshop",
-            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+            ClientID: company.clientID,
+            ClientSecret: company.clientSecret,
           },
           body: JSON.stringify(orderDetails),
         }
@@ -156,14 +190,17 @@ export const fetchCompanyInfo = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     const state = getState();
     try {
+      const company = state?.user?.user?.company;
+      const apiUrl = company?.apiUrl;
       const response = await fetch(
-        "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/Webconfigrecs",
+        // "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/Webconfigrecs",
+        `${apiUrl}/Webconfigrecs`,
         {
           method: "GET",
           headers: {
             Authorization: `Bearer ${state.user.accessToken}`,
-            ClientID: "imxshop",
-            ClientSecret: "ce26ea60-6075-4e96-bf0d-e849b58b213c",
+            ClientID: company.clientID,
+            ClientSecret: company.clientSecret,
           },
         }
       );
@@ -225,12 +262,14 @@ const userReducer = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        const customerInfo = action.payload.customers[0];
+        // const customerInfo = action.payload.customers[0];
+        const customerInfo = action.payload.companyName;
+        console.log("Customer Info:", customerInfo);
         state.user = {
           emailAddress: action.payload.emailAddress,
           lastLogin: action.payload.lastLogin,
           acctNo: customerInfo.acctNo,
-          company: customerInfo.company,
+          company: customerInfo,
         };
         state.accessToken = action.payload.token;
       })
