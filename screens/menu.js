@@ -14,11 +14,10 @@ import {
 } from "../redux/reducers/userReducer";
 import { toggleSound } from "../redux/reducers/cartReducer";
 
-const Menu = () => {
+const Menu = ({ navigation }) => {
   const dispatch = useDispatch();
   const companyInfo = useSelector((state) => state.user.companyInfo);
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
-  const token = useSelector((state) => state.user.accessToken);
   const acctNo = useSelector((state) => state.user.user.acctNo);
 
   const handleLogout = () => {
@@ -30,7 +29,9 @@ const Menu = () => {
     if (option === "Play Sound") {
       dispatch(toggleSound()); // Toggle sound option
     } else if (option === "PreviousOrder") {
-      dispatch(previousOrder({ acctNo, token }));
+      navigation.navigate("PreviousOrder");
+    } else if (option === "SwitchAccount") {
+      navigation.navigate("SwitchAccount");
     }
   };
   useEffect(() => {
@@ -58,6 +59,17 @@ const Menu = () => {
           </TouchableOpacity>
           <Text style={styles.menuInfo}></Text>
         </View>
+
+        <View style={styles.menuItemRow}>
+          <TouchableOpacity
+            onPress={() => handleMenuOption("SwitchAccount")}
+            activeOpacity={0.1}
+          >
+            <Text style={styles.menuItem}>Switch Account</Text>
+          </TouchableOpacity>
+          <Text style={styles.menuInfo}></Text>
+        </View>
+
         <View style={styles.menuItemRow}>
           <TouchableOpacity
             onPress={() => handleMenuOption("Location")}

@@ -41,7 +41,7 @@ export const loginUser = createAsyncThunk(
             data.message || "Could not log in"
           }\nplease check your credentials and try again`
         );
-      data = { companyName: company }; // Simulated response with companyName
+      data = { ...data, companyName: company }; // Simulated response with companyName
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -126,7 +126,7 @@ export const previousOrder = createAsyncThunk(
     const state = getState();
     const company = state?.user?.user?.company;
     const apiUrl = company?.apiUrl;
-    const url = `${apiUrl}/webcartshoprecs/${acctNo}`;
+    const url = `${apiUrl}/Webordersrecs/${acctNo}`;
     try {
       const response = await fetch(url, {
         method: "GET",
@@ -144,7 +144,39 @@ export const previousOrder = createAsyncThunk(
       }
 
       const data = JSON.parse(text); // Parse text to JSON manually
-      console.log("Fetched previous orders with hardcoded account:", data);
+      return data;
+    } catch (error) {
+      console.error("Catch error:", error);
+      return rejectWithValue(error.toString());
+    }
+  }
+);
+
+export const previousOrderDetails = createAsyncThunk(
+  "user/previousOrderDetails",
+  async ({ orderNo, acctNo, token }, { getState, rejectWithValue }) => {
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    const url = `${apiUrl}/Webordersrecs/${orderNo}/${acctNo}`;
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Clientid: company.clientID,
+          Clientsecret: company.clientSecret,
+        },
+      });
+
+      const text = await response.text(); // Get text to avoid JSON parsing errors initially
+      if (!response.ok) {
+        console.error("Error fetching previous orders:", text);
+        throw new Error(`Could not fetch orders: ${response.status}`);
+      }
+
+      const data = JSON.parse(text); // Parse text to JSON manually
+
       return data;
     } catch (error) {
       console.error("Catch error:", error);
@@ -236,6 +268,38 @@ export const fetchCompanyInfo = createAsyncThunk(
   }
 );
 
+export const fetchSwitchAccountRes = createAsyncThunk(
+  "user/fetchSwitchAccountRes",
+  async ({ token }, { getState, rejectWithValue }) => {
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    const url = `${apiUrl}/customerrecs/adminSearch`;
+    console.log("Fetching switch account details with hardcoded account:", url);
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Clientid: company.clientID,
+          Clientsecret: company.clientSecret,
+        },
+      });
+
+      const text = await response.text(); // Get text to avoid JSON parsing errors initially
+      if (!response.ok) {
+        console.error("Error fetching  switch accounts:", text);
+        throw new Error(`Could not fetch switch account: ${response.status}`);
+      }
+      const data = JSON.parse(text); // Parse text to JSON manually
+      return data;
+    } catch (error) {
+      console.error("Catch error:", error);
+      return rejectWithValue(error.toString());
+    }
+  }
+);
+
 const initialState = {
   user: null,
   accessToken: null,
@@ -264,11 +328,11 @@ const userReducer = createSlice({
         state.isLoading = false;
         // const customerInfo = action.payload.customers[0];
         const customerInfo = action.payload.companyName;
-        console.log("Customer Info:", customerInfo);
+        const customers = action.payload.customers[0];
         state.user = {
           emailAddress: action.payload.emailAddress,
           lastLogin: action.payload.lastLogin,
-          acctNo: customerInfo.acctNo,
+          acctNo: customers.acctNo,
           company: customerInfo,
         };
         state.accessToken = action.payload.token;
@@ -288,6 +352,43 @@ const userReducer = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
+
+      .addCase(previousOrder.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(previousOrder.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.previousOrders = action.payload;
+      })
+      .addCase(previousOrder.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(previousOrderDetails.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(previousOrderDetails.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.previousOrderDetails = action.payload;
+      })
+      .addCase(previousOrderDetails.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(fetchSwitchAccountRes.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchSwitchAccountRes.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.switchAccountRes = action.payload;
+      })
+      .addCase(fetchSwitchAccountRes.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
       .addCase(searchItemByBarcode.pending, (state) => {
         state.isLoading = true;
       })
