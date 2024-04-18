@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
-import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
+import { addProduct, addToCart, getCartItem, getCartProducts } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 
 import { Audio } from "expo-av";
@@ -23,11 +23,13 @@ import { StatusBar } from "expo-status-bar";
 const KeyPad = () => {
   const cartProducts = useSelector(getCartProducts);
   const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
+  const acctNo = useSelector((state) => state.user.user.acctNo);
   const dispatch = useDispatch();
   const [upc, setUPC] = useState("");
   // const soundEnabled = useSelector((state) => state.user.soundEnabled);
   const [itemDetails, setItemDetails] = useState([]);
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
+  console.log("cartProducts", cartProducts);
 
   const playSound = async (soundPath) => {
     if (soundEnabled) {
@@ -43,7 +45,7 @@ const KeyPad = () => {
   const handleManualItemSubmit = async () => {
     if (upc) {
       console.log(upc);
-      dispatch(searchItemByBarcode({ barcodeId: upc, token }))
+      dispatch(searchItemByBarcode({ barcodeId: upc, token,acctNo }))
         .unwrap()
         .then((response) => {
           if (
@@ -57,12 +59,14 @@ const KeyPad = () => {
             console.log(response);
             playSound(require("../assets/sounds/Found.wav"));
             setItemDetails((currentItems) => [response, ...currentItems]);
-            dispatch(
-              addProduct({
-                item: response,
-                itemNo: response.itemNo,
-              })
-            );
+            // dispatch(
+            //   addProduct({
+            //     item: response,
+            //     itemNo: response.itemNo,
+            //   })
+            // );
+            // Add the product to the cart
+            dispatch(addToCart({ acctNo, token, itemNo: response.itemNo }));
           } else {
             playSound(require("../assets/sounds/NotFound.wav"));
           }
