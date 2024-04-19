@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import companyConfigs from "../../config/companyConfig";
 import { useSelector } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
@@ -34,7 +35,7 @@ export const loginUser = createAsyncThunk(
         }),
       });
       let data = await response.json();
-      // console.log(data);
+      console.log("login data===>", data);
       if (!response.ok)
         throw new Error(
           `${
@@ -42,6 +43,7 @@ export const loginUser = createAsyncThunk(
           }\nplease check your credentials and try again`
         );
       data = { ...data, companyName: company }; // Simulated response with companyName
+      AsyncStorage.setItem("companyName", companyName);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -176,7 +178,16 @@ export const previousOrderDetails = createAsyncThunk(
       }
 
       const data = JSON.parse(text); // Parse text to JSON manually
-
+      const updatedData = data?.orderDetails.map((item) => {
+        return {
+          ...item,
+          image:
+            "https://imxshop.cmxsoftware.com/capitalItemImages/" +
+            item.itemNo +
+            "/0thn.jpg",
+        };
+      });
+      data.orderDetails = updatedData;
       return data;
     } catch (error) {
       console.error("Catch error:", error);
@@ -334,6 +345,7 @@ const userReducer = createSlice({
           lastLogin: action.payload.lastLogin,
           acctNo: customers.acctNo,
           company: customerInfo,
+          ...action.payload,
         };
         state.accessToken = action.payload.token;
       })

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { loginUser } from "../redux/reducers/userReducer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Authentication = () => {
   const [companyName, setCompanyName] = useState("");
@@ -23,6 +24,23 @@ const Authentication = () => {
   const isLoading = useSelector((state) => state.user.isLoading);
   const user = useSelector((state) => state.user.user);
   const error = useSelector((state) => state.user.error);
+  
+  // get company name from async storage
+  const getCompanyName = async () => {
+    try {
+      const value = await AsyncStorage.getItem("companyName");
+      if (value !== null) {
+        setCompanyName(value);
+      }
+    } catch (e) {
+      console.log("Error getting company name from async storage", e);
+    }
+  };
+
+  useEffect(() => {
+    getCompanyName();
+  }, []);
+
 
   const handleLogin = () => {
     const newErrors = {};
@@ -37,7 +55,6 @@ const Authentication = () => {
       dispatch(
         loginUser({ emailAddress: email, password: password, companyName })
       );
-      console.log(email, password);
     }
   };
 

@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { previousOrderDetails } from "../redux/reducers/userReducer";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 
 const PreviousOrderDetails = ({
   route: {
@@ -68,10 +69,30 @@ const PreviousOrderDetails = ({
         data={prevOrderDetails?.orderDetails}
         keyExtractor={(item) => item.itemNo}
         renderItem={({ item }) => {
+          console.log("item", item);
           const itemName = item?.item?.itemNo + " - " + item?.item?.description;
+          const imageUri = item?.image;
+
+          console.log("imageUri", imageUri);
           return (
             <View style={styles.tableRow}>
-              <Text style={[styles.value, { flex: 0.5 }]}>{itemName}</Text>
+              <View
+                style={{
+                  flex: 0.5,
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  source={
+                    imageUri
+                      ? { uri: imageUri }
+                      : require("../assets/images/notFound.png")
+                  }
+                  style={styles.img}
+                  contentFit="contain"
+                />
+                <Text style={[styles.value]}>{itemName}</Text>
+              </View>
               <Text style={[styles.value, { flex: 0.2 }]}>{item.qty}</Text>
               <Text style={[styles.value, { flex: 0.2 }]}>{item.qtyType}</Text>
               <View style={{ flex: 0.1, alignItems: "center" }}>
@@ -134,5 +155,10 @@ const styles = StyleSheet.create({
   },
   value: {
     textAlign: "center",
+  },
+  img: {
+    width: 120,
+    aspectRatio: 1,
+    borderRadius: 10,
   },
 });

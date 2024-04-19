@@ -11,6 +11,7 @@ import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import PreviousOrder from "../screens/previousOrder";
 import PreviousOrderDetails from "../screens/previousOrderDetails";
 import SwitchAccount from "../screens/switchAccount";
+import profile from "../screens/profile";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -148,6 +149,22 @@ const MainStack = () => {
         component={SwitchAccount}
         options={{
           title: "Switch Account",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="profile"
+        component={profile}
+        options={{
+          title: "Profile",
           headerStyle: {
             backgroundColor: "#007AFF",
           },
