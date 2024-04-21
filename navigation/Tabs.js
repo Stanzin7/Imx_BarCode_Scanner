@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
 import Scanner from "../screens/scanner";
 import KeyPad from "../screens/keyPad";
 import Cart from "../screens/cart";
@@ -7,10 +8,15 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import PreviousOrder from "../screens/previousOrder";
+import PreviousOrderDetails from "../screens/previousOrderDetails";
+import SwitchAccount from "../screens/switchAccount";
+import profile from "../screens/profile";
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
-export default function Tabs() {
+const Tabs = () => {
   return (
     <Tab.Navigator>
       <Tab.Screen
@@ -95,4 +101,82 @@ export default function Tabs() {
       />
     </Tab.Navigator>
   );
-}
+};
+
+// Main Stack Navigator
+const MainStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Tabs"
+        component={Tabs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PreviousOrder"
+        component={PreviousOrder}
+        options={{
+          title: "Previous Orders",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="previousOrderDetails"
+        component={PreviousOrderDetails}
+        options={{
+          title: "Order Details",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="SwitchAccount"
+        component={SwitchAccount}
+        options={{
+          title: "Switch Account",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="profile"
+        component={profile}
+        options={{
+          title: "Profile",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+export default MainStack;

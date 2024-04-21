@@ -3,7 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Authentication from "../authentication/Authentication";
 import useAutoLogout from "../hooks/useAutoLogout";
-import Tabs from "./Tabs";
+import MainStack from "./Tabs";
 
 const Routes = () => {
   const isLoggedIn = useSelector((state) => state.user.user !== null);
@@ -12,7 +12,7 @@ const Routes = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      {isLoggedIn ? <Tabs /> : <Authentication />}
+      {isLoggedIn ? <MainStack /> : <Authentication />}
       {/* <Tabs /> */}
     </View>
   );

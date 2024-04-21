@@ -6,6 +6,8 @@ import {
   FlatList,
   Alert,
   Platform,
+  ImageBackground,
+  Dimensions,
 } from "react-native";
 import Colors from "../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,6 +28,7 @@ const KeyPad = () => {
   // const soundEnabled = useSelector((state) => state.user.soundEnabled);
   const [itemDetails, setItemDetails] = useState([]);
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
+  console.log("cartProducts", cartProducts);
 
   const playSound = async (soundPath) => {
     if (soundEnabled) {
@@ -112,6 +115,11 @@ const KeyPad = () => {
           />
         )}
       />
+      <ImageBackground
+        source={require("../assets/images/logo1.png")}
+        resizeMode="center"
+        style={[styles.fixed, styles.containter, { zIndex: -1 }]}
+      />
     </SafeAreaView>
   );
 };
@@ -130,7 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    backgroundColor: "white", // Changed from transparent to white for visibility
+    // backgroundColor: "white", // Changed from transparent to white for visibility
     zIndex: 10, // Ensure it stacks above the FlatList
   },
   input: {
@@ -147,6 +155,17 @@ const styles = StyleSheet.create({
   },
   flatList: {
     marginTop: 20,
+  },
+  fixed: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  containter: {
+    width: Dimensions.get("window").width, //for full screen
+    height: Dimensions.get("window").height - 50, //for full screen
   },
 });
 
