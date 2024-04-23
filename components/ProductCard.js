@@ -3,11 +3,13 @@ import { Fontisto } from "@expo/vector-icons";
 import React, { useEffect } from "react";
 import CounterNew from "./Counter";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   decreaseQuanity,
+  deleteCart,
   deleteProduct,
   increaseQuanity,
+  updateCart,
 } from "../redux/reducers/cartReducer";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -25,6 +27,13 @@ const ScannedItemCard = ({
   pack,
 }) => {
   const [isOpen, setisOpen] = useState(true);
+  const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
+  const acctNo = useSelector((state) => state.user.user.acctNo);
+  const products = useSelector(
+    (state) => state.entities.cart.products[0]?.item
+  );
+  const email = useSelector((state) => state.user.user.emailAddress);
+  const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -60,7 +69,8 @@ const ScannedItemCard = ({
   }, [itemNo]);
 
   function handleCloseButton() {
-    dispatch(deleteProduct({ itemNo }));
+    // dispatch(deleteProduct({ itemNo }));
+    dispatch(deleteCart({ acctNo, itemNo, token }));
   }
 
   let unitPrice =
@@ -76,12 +86,48 @@ const ScannedItemCard = ({
   const roundedUnitPrice = unitPrice.toFixed(2);
 
   const incrementCounter = () => {
-    dispatch(increaseQuanity({ itemNo: itemNo }));
+    const payload = {
+      item: products,
+      acctNo: acctNo,
+      itemNo: itemNo,
+      price: sellPriceCase1,
+      qty: qty + 1,
+      emailAddress: email,
+      qtyType: "CASE",
+      cartType: "CART",
+      cartTypeDesc: "",
+      goScan: "Y",
+      storeNo: "",
+      dateAdded: new Date().toISOString(),
+    };
+
+    dispatch(updateCart({ acctNo, token, payload }));
+    // dispatch(increaseQuanity({ itemNo: itemNo }));
   };
   const decrementCounter = () => {
-    if (currentCount >= 2) {
-      dispatch(decreaseQuanity({ itemNo }));
+    if (qty === 1) {
+      dispatch(deleteCart({ acctNo, itemNo, token }));
+    } else {
+      const payload = {
+        item: products,
+        acctNo: acctNo,
+        itemNo: itemNo,
+        price: sellPriceCase1,
+        qty: qty - 1,
+        emailAddress: email,
+        qtyType: "CASE",
+        cartType: "CART",
+        cartTypeDesc: "",
+        goScan: "Y",
+        storeNo: "",
+        dateAdded: new Date().toISOString(),
+      };
+
+      dispatch(updateCart({ acctNo, token, payload }));
     }
+    // if (currentCount >= 2) {
+    //   dispatch(decreaseQuanity({ itemNo }));
+    // }
     // setCounter((prevCounter) => (prevCounter > 0 ? prevCounter - 1 : 0));
   };
 

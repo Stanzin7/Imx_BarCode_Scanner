@@ -12,16 +12,18 @@ import {
   Linking,
   Dimensions,
   ImageBackground,
+  ActivityIndicator,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera/next";
 import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
-import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
+import { addProduct, getCart, getCartProducts } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
 import { Camera } from "expo-camera";
 import Colors from "../constants/Colors";
+import { useIsFocused } from "@react-navigation/native";
 
 const Scanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -34,10 +36,18 @@ const Scanner = () => {
   const [isCameraVisible, setIsCameraVisible] = useState(false); // For camera visibility
   const [cameraKey, setCameraKey] = useState(0);
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
-
+  const loading = useSelector((state) => state.entities.cart.isLoading);
+  const isFocused = useIsFocused();
+  const acctNo = useSelector((state) => state.user.user.acctNo);
   // useEffect(() => {
   //   console.log("Initial scanned state:", scanned); // Log initial scanned state
   // }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      dispatch(getCart({ acctNo, token }));
+    }
+  }, [isFocused]);
 
   const askCameraPermission = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
@@ -192,6 +202,11 @@ const Scanner = () => {
           )}
         </View>
       )}
+       {loading && (
+            <View style={styles.overlay}>
+              <ActivityIndicator size="large" color={Colors.main} />
+            </View>
+          )}
       <FlatList
         data={cartProducts.products}
         contentContainerStyle={{
@@ -200,20 +215,23 @@ const Scanner = () => {
         }}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.itemNo}
-        renderItem={({ item }) => (
-          <ScannedItemCard
-            key={item.itemNo}
-            imageUrl={item.imageUrl}
-            itemNo={item.itemNo}
-            description={item.description}
-            sellPriceCase1={item.sellPriceCase1}
-            unitsPerCase={item.unitsPerCase}
-            sellPriceUnit={item.sellPriceUnit}
-            currentCount={item.quantity}
-            size={item.size}
-            pack={item.pack}
-          />
-        )}
+        renderItem={({ item }) => {
+          const itemDetails = item.item;
+          return (
+            <ScannedItemCard
+              key={itemDetails.itemNo}
+              imageUrl={itemDetails.imageUrl}
+              itemNo={itemDetails.itemNo}
+              description={itemDetails.description}
+              sellPriceCase1={itemDetails.sellPriceCase1}
+              unitsPerCase={itemDetails.unitsPerCase}
+              sellPriceUnit={itemDetails.sellPriceUnit}
+              currentCount={item.qty}
+              size={itemDetails.size}
+              pack={itemDetails.pack}
+            />
+          );
+        }}
       />
       <View style={styles.buttonContainer}>
         <Button color={"black"} title="Scan" onPress={handleScanAgainPress} />
@@ -227,6 +245,7 @@ const Scanner = () => {
   );
 };
 
+const minusHeight = Platform.OS === "android" ? 50 : 150;
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
@@ -281,7 +300,14 @@ const styles = StyleSheet.create({
   },
   containter: {
     width: Dimensions.get("window").width, //for full screen
-    height: Dimensions.get("window").height - 50, //for full screen
+    height: Dimensions.get("window").height - minusHeight, //for full screen
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Adjust the opacity here
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
   },
 });
 

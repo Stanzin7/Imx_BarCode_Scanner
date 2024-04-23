@@ -1,7 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import MessageInput from "./MessageInput"; // Ensure the path is correct
 import PONumberInput from "./PONumberInput"; // Ensure the path is correct
+import { useSelector } from "react-redux";
 
 const Footer = ({
   toggleShippingOption,
@@ -14,42 +21,52 @@ const Footer = ({
   setMessage, // Received setMessage
   handleCheckout, // Assuming this function is passed down as a prop
   totalWeight,
-}) => (
-  <View style={styles.footerContainer}>
-    <View style={styles.totalContainer}>
-      <Text style={styles.totalText}>SubTotal:</Text>
-      <Text style={styles.priceText}>${parseFloat(totalprice).toFixed(2)}</Text>
-    </View>
+}) => {
+  const isLoading = useSelector((state) => state.entities.cart.isLoading);
 
-    <View style={styles.totalWeightContainer}>
-      <Text style={styles.totalText}>Total Estimated Weight:</Text>
-      <Text style={styles.priceText}>{totalWeight} lbs.</Text>
-    </View>
-
-    <View style={styles.shippingTotalContainer}>
-      <View style={styles.shippingContainer}>
-        <Text style={styles.shippingText}>Shipping Method:</Text>
-        <Text style={styles.optionText} onPress={toggleShippingOption}>
-          {shippingOption}
+  return (
+    <View style={styles.footerContainer}>
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalText}>SubTotal:</Text>
+        <Text style={styles.priceText}>
+          ${parseFloat(totalprice).toFixed(2)}
         </Text>
       </View>
 
-      {/* Use PONumberInput component */}
-      <PONumberInput setPoNumber={setPoNumber} poNumber={poNumber} />
+      <View style={styles.totalWeightContainer}>
+        <Text style={styles.totalText}>Total Estimated Weight:</Text>
+        <Text style={styles.priceText}>{totalWeight} lbs.</Text>
+      </View>
 
-      {/* Use MessageInput component */}
-      <MessageInput
-        messageInputRef={messageInputRef}
-        message={message}
-        setMessage={setMessage}
-      />
+      <View style={styles.shippingTotalContainer}>
+        <View style={styles.shippingContainer}>
+          <Text style={styles.shippingText}>Shipping Method:</Text>
+          <Text style={styles.optionText} onPress={toggleShippingOption}>
+            {shippingOption}
+          </Text>
+        </View>
+
+        {/* Use PONumberInput component */}
+        <PONumberInput setPoNumber={setPoNumber} poNumber={poNumber} />
+
+        {/* Use MessageInput component */}
+        <MessageInput
+          messageInputRef={messageInputRef}
+          message={message}
+          setMessage={setMessage}
+        />
+      </View>
+
+      <Pressable style={styles.orderButton} onPress={handleCheckout}>
+        {isLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.orderButtonText}>Check Out</Text>
+        )}
+      </Pressable>
     </View>
-
-    <Pressable style={styles.orderButton} onPress={handleCheckout}>
-      <Text style={styles.orderButtonText}>Check Out</Text>
-    </Pressable>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   footerContainer: {

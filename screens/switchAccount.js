@@ -1,16 +1,25 @@
-import { View, ScrollView, FlatList, Text, StyleSheet } from "react-native";
+import {
+  View,
+  ScrollView,
+  FlatList,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSwitchAccountRes } from "../redux/reducers/userReducer";
+import {
+  fetchSwitchAccountRes,
+  selectSwitchAccount,
+} from "../redux/reducers/userReducer";
 import { MaterialIcons } from "@expo/vector-icons";
 import Colors from "../constants/Colors";
 
-const SwitchAccount = () => {
+const SwitchAccount = ({ navigation }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.accessToken);
   const switchAccount = useSelector((state) => state.user.switchAccountRes);
-
-  console.log("switchAccount", switchAccount);
+  const loading = useSelector((state) => state.user.isLoading);
 
   useEffect(() => {
     dispatch(fetchSwitchAccountRes({ token }));
@@ -29,8 +38,8 @@ const SwitchAccount = () => {
     </View>
   );
 
-  const renderItem = ({ item }) => (
-    <View style={styles.rowContainer}>
+  const renderItem = ({ item, index }) => (
+    <View key={index} style={styles.rowContainer}>
       <Text style={[styles.rowText, { width: 100 }]}>{item.acctNo}</Text>
       <Text style={styles.rowText}>{item?.firstName}</Text>
       <Text style={styles.rowText}>{item.lastName}</Text>
@@ -41,12 +50,27 @@ const SwitchAccount = () => {
         {item.address1 + " " + item.city1 + " " + item.state1}
       </Text>
       <View style={styles.rowText}>
-        <MaterialIcons name="done" size={24} color={Colors.main} />
+        <MaterialIcons
+          onPress={() => {
+            dispatch(
+              selectSwitchAccount({ acctNo: item.acctNo, token, navigation })
+            );
+          }}
+          name="done"
+          size={24}
+          color={Colors.main}
+        />
       </View>
     </View>
   );
 
   return (
+    <>
+     {loading && (
+          <View style={styles.overlay}>
+            <ActivityIndicator size="large" color={Colors.main} />
+          </View>
+        )}
     <ScrollView horizontal={true}>
       <View>
         {renderHeader()}
@@ -57,6 +81,7 @@ const SwitchAccount = () => {
         />
       </View>
     </ScrollView>
+    </>
   );
 };
 
@@ -89,5 +114,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     width: 150,
     alignItems: "center",
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Adjust the opacity here
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
   },
 });

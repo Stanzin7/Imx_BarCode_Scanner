@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
   clearCart,
+  getCart,
   getCartProducts,
   gettotalPriceOfProduct,
 } from "../redux/reducers/cartReducer";
@@ -21,23 +22,31 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getRoundedTotalEstimatedWeight } from "../redux/reducers/cartReducer";
 import { submitOrder } from "../redux/reducers/userReducer";
+import Colors from "../constants/Colors";
+import { useIsFocused } from "@react-navigation/native";
 
 const Cart = () => {
   const cartProducts = useSelector((state) => getCartProducts(state));
   const totalprice = useSelector((state) => gettotalPriceOfProduct(state));
   const totalWeight = useSelector(getRoundedTotalEstimatedWeight);
   const [shippingOption, setShippingOption] = useState("Delivery");
+  const loading = useSelector((state) => state.entities.cart.isLoading);
   const [poNumber, setPoNumber] = useState("");
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messageInputRef = useRef(null);
   const dispatch = useDispatch();
   const { products } = useSelector((state) => state.entities.cart);
   const user = useSelector((state) => state.user.user);
-  const company = user?.company;
+  const company = user?.customers[0]?.company;
   const accNo = user?.acctNo;
+  const isFocused = useIsFocused();
 
-  console.log(cartProducts);
+  useEffect(() => {
+    if (isFocused) {
+      dispatch(getCart({ acctNo: accNo, token: user.token }));
+    }
+  }, [isFocused]);
+
   const handleCheckout = () => {
     if (products.length === 0) {
       Alert.alert(
@@ -48,8 +57,6 @@ const Cart = () => {
       );
       return;
     }
-    setIsLoading(true);
-    console.log("Checkout button pressed");
     const orderDetails = {
       company: company,
       notes: message,
@@ -59,12 +66,12 @@ const Cart = () => {
         goScan: "N",
         itemNo: product.itemNo,
         memo: "",
-        price: product.sellPriceCase1,
-        qty: product.quantity,
+        price: product.item.sellPriceCase1,
+        qty: product.qty,
         qtyType: "CASE",
       })),
       orderTotal: products.reduce(
-        (total, product) => total + product.sellPriceCase1 * product.quantity,
+        (total, product) => total + product.item.sellPriceCase1 * product.qty,
         0
       ),
       paymentAccountType: null,
@@ -81,7 +88,12 @@ const Cart = () => {
     console.log("Submitting order with details:", orderDetails);
     dispatch(submitOrder(orderDetails))
       .then(() => {
-        dispatch(clearCart());
+        dispatch(
+          clearCart({
+            acctNo: accNo,
+            token: user.token,
+          })
+        );
         setPoNumber("");
         setMessage("");
         Alert.alert(
@@ -106,7 +118,9 @@ const Cart = () => {
           { cancelable: false }
         );
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        console.log("Order submission process completed");
+      });
   };
 
   const toggleShippingOption = () => {
@@ -116,58 +130,60 @@ const Cart = () => {
   };
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
-      {isLoading ? ( // Check if loading
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      ) : (
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-        >
-          <View style={styles.container}>
-            <FlatList
-              ListHeaderComponent={<Header />}
-              data={cartProducts?.products}
-              contentContainerStyle={styles.listContentContainer}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={(item) => item.itemNo}
-              renderItem={({ item }) => (
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      >
+        <View style={styles.container}>
+          {loading && (
+            <View style={styles.overlay}>
+              <ActivityIndicator size="large" color={Colors.main} />
+            </View>
+          )}
+          <FlatList
+            ListHeaderComponent={<Header />}
+            data={cartProducts?.products}
+            contentContainerStyle={styles.listContentContainer}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(item) => item.itemNo}
+            renderItem={({ item }) => {
+              const itemDetails = item.item;
+              return (
                 <ScannedItemCard
-                  key={item.itemNo}
-                  imageUrl={item.imageUrl}
-                  itemNo={item.itemNo}
-                  description={item.description}
-                  sellPriceCase1={item.sellPriceCase1}
-                  unitsPerCase={item.unitsPerCase}
-                  sellPriceUnit={item.sellPriceUnit}
-                  currentCount={item.quantity}
-                  size={item.size}
-                  pack={item.pack}
+                  key={itemDetails.itemNo}
+                  imageUrl={itemDetails.imageUrl}
+                  itemNo={itemDetails.itemNo}
+                  description={itemDetails.description}
+                  sellPriceCase1={itemDetails.sellPriceCase1}
+                  unitsPerCase={itemDetails.unitsPerCase}
+                  sellPriceUnit={itemDetails.sellPriceUnit}
+                  currentCount={item.qty}
+                  size={itemDetails.size}
+                  pack={itemDetails.pack}
                 />
-              )}
-              ListFooterComponent={
-                <Footer
-                  toggleShippingOption={toggleShippingOption}
-                  shippingOption={shippingOption}
-                  setPoNumber={setPoNumber}
-                  poNumber={poNumber}
-                  messageInputRef={messageInputRef}
-                  totalprice={totalprice}
-                  message={message}
-                  setMessage={setMessage}
-                  handleCheckout={handleCheckout}
-                  totalWeight={totalWeight}
-                />
-              }
-              ListEmptyComponent={
-                <Text style={styles.emptyCartText}>Your Cart is Empty</Text>
-              }
-            />
-          </View>
-        </KeyboardAvoidingView>
-      )}
+              );
+            }}
+            ListFooterComponent={
+              <Footer
+                toggleShippingOption={toggleShippingOption}
+                shippingOption={shippingOption}
+                setPoNumber={setPoNumber}
+                poNumber={poNumber}
+                messageInputRef={messageInputRef}
+                totalprice={totalprice}
+                message={message}
+                setMessage={setMessage}
+                handleCheckout={handleCheckout}
+                totalWeight={totalWeight}
+              />
+            }
+            ListEmptyComponent={
+              <Text style={styles.emptyCartText}>Your Cart is Empty</Text>
+            }
+          />
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -190,10 +206,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "grey",
   },
-  loaderContainer: {
-    flex: 1,
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Adjust the opacity here
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 1,
   },
 });
 

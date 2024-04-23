@@ -8,27 +8,50 @@ import {
   Platform,
   ImageBackground,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import Colors from "../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
-import { addProduct, getCartProducts } from "../redux/reducers/cartReducer";
+import {
+  addProduct,
+  addToCartFirst,
+  getCart,
+  getCartProducts,
+  updateCart,
+} from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
+import { useIsFocused } from "@react-navigation/native";
 
 const KeyPad = () => {
-  const cartProducts = useSelector(getCartProducts);
+  // const cartProducts = useSelector(getCartProducts);
+  const cartProducts = useSelector((state) => state.entities.cart);
   const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
+  const acctNo = useSelector((state) => state.user.user.acctNo);
+  const email = useSelector((state) => state.user.user.emailAddress);
+  const loading = useSelector((state) => state.entities.cart.isLoading);
+  const products = useSelector(
+    (state) => state.entities.cart.products[0]?.item
+  );
+  const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
+
   const dispatch = useDispatch();
   const [upc, setUPC] = useState("");
   // const soundEnabled = useSelector((state) => state.user.soundEnabled);
   const [itemDetails, setItemDetails] = useState([]);
+  const isFocused = useIsFocused();
   const soundEnabled = useSelector((state) => state.entities.cart.soundEnabled);
-  console.log("cartProducts", cartProducts);
+
+  useEffect(() => {
+    if (isFocused) {
+      dispatch(getCart({ acctNo, token }));
+    }
+  }, [isFocused]);
 
   const playSound = async (soundPath) => {
     if (soundEnabled) {
@@ -58,12 +81,51 @@ const KeyPad = () => {
             console.log(response);
             playSound(require("../assets/sounds/Found.wav"));
             setItemDetails((currentItems) => [response, ...currentItems]);
-            dispatch(
-              addProduct({
-                item: response,
-                itemNo: response.itemNo,
-              })
+
+            const isExist = cartProducts.products.some(
+              (item) => item.itemNo === response.itemNo
             );
+
+            console.log("isExist", isExist);
+            if (isExist) {
+              const payload = {
+                item: products,
+                acctNo: acctNo,
+                itemNo: response.itemNo,
+                price: response.sellPriceCase1,
+                qty: qty + 1,
+                emailAddress: email,
+                qtyType: "CASE",
+                cartType: "CART",
+                cartTypeDesc: "",
+                goScan: "Y",
+                storeNo: "",
+                dateAdded: new Date().toISOString(),
+              };
+              dispatch(updateCart({ acctNo, token, payload }));
+            } else {
+              const payload = {
+                cartTypeDesc: "",
+                item: { documentCount: 0 },
+                itemNo: response.itemNo,
+                storeNo: "",
+                qty: 1,
+                acctNo: acctNo,
+                emailAddress: email,
+                price: response.sellPriceCase1,
+                goScan: "YES",
+                qtyType: "CASE",
+                cartType: "CART",
+              };
+
+              dispatch(
+                addToCartFirst({
+                  acctNo,
+                  token,
+                  payload,
+                })
+              );
+            }
           } else {
             playSound(require("../assets/sounds/NotFound.wav"));
           }
@@ -91,6 +153,11 @@ const KeyPad = () => {
           onSubmitEditing={handleManualItemSubmit}
         />
       </View>
+      {loading && (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color={Colors.main} />
+        </View>
+      )}
       <FlatList
         data={cartProducts.products}
         contentContainerStyle={{
@@ -100,20 +167,23 @@ const KeyPad = () => {
         style={styles.flatList}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.itemNo}
-        renderItem={({ item }) => (
-          <ScannedItemCard
-            key={item.itemNo}
-            imageUrl={item.imageUrl}
-            itemNo={item.itemNo}
-            description={item.description}
-            sellPriceCase1={item.sellPriceCase1}
-            unitsPerCase={item.unitsPerCase}
-            sellPriceUnit={item.sellPriceUnit}
-            currentCount={item.quantity}
-            size={item.size}
-            pack={item.pack}
-          />
-        )}
+        renderItem={({ item }) => {
+          const itemDetails = item.item;
+          return (
+            <ScannedItemCard
+              key={itemDetails.itemNo}
+              imageUrl={itemDetails.imageUrl}
+              itemNo={itemDetails.itemNo}
+              description={itemDetails.description}
+              sellPriceCase1={itemDetails.sellPriceCase1}
+              unitsPerCase={itemDetails.unitsPerCase}
+              sellPriceUnit={itemDetails.sellPriceUnit}
+              currentCount={item.qty}
+              size={itemDetails.size}
+              pack={itemDetails.pack}
+            />
+          );
+        }}
       />
       <ImageBackground
         source={require("../assets/images/logo1.png")}
@@ -123,6 +193,8 @@ const KeyPad = () => {
     </SafeAreaView>
   );
 };
+
+const minusHeight = Platform.OS === "android" ? 50 : 150;
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
@@ -165,7 +237,14 @@ const styles = StyleSheet.create({
   },
   containter: {
     width: Dimensions.get("window").width, //for full screen
-    height: Dimensions.get("window").height - 50, //for full screen
+    height: Dimensions.get("window").height - minusHeight, //for full screen
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Adjust the opacity here
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
   },
 });
 

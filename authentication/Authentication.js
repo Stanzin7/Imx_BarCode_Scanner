@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -24,7 +24,7 @@ const Authentication = () => {
   const isLoading = useSelector((state) => state.user.isLoading);
   const user = useSelector((state) => state.user.user);
   const error = useSelector((state) => state.user.error);
-  
+
   // get company name from async storage
   const getCompanyName = async () => {
     try {
@@ -40,7 +40,6 @@ const Authentication = () => {
   useEffect(() => {
     getCompanyName();
   }, []);
-
 
   const handleLogin = () => {
     const newErrors = {};
@@ -82,7 +81,7 @@ const Authentication = () => {
               style={styles.logo}
             />
           </View>
-          <Text style={styles.welcomeText}>Welcome</Text>
+          <Text style={styles.welcomeText}></Text>
           <KeyboardAvoidingView behavior="padding" style={styles.inputGroup}>
             <Text style={styles.title}>Company Name</Text>
             <TextInput

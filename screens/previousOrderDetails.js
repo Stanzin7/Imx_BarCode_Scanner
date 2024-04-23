@@ -1,9 +1,17 @@
-import { StyleSheet, Text, View, FlatList } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { previousOrderDetails } from "../redux/reducers/userReducer";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import Colors from "../constants/Colors";
+import { addToCartFirst, updateCart } from "../redux/reducers/cartReducer";
 
 const PreviousOrderDetails = ({
   route: {
@@ -17,10 +25,112 @@ const PreviousOrderDetails = ({
   const prevOrderDetails = useSelector(
     (state) => state.user.previousOrderDetails
   );
+  const cartProducts = useSelector((state) => state.entities.cart);
+  const email = useSelector((state) => state.user.user.emailAddress);
+  const products = useSelector(
+    (state) => state.entities.cart.products[0]?.item
+  );
+  const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
 
   useEffect(() => {
     dispatch(previousOrderDetails({ orderNo, acctNo, token }));
   }, []);
+
+  const IndAddtoCart = (item) => {
+    const isExist = cartProducts.products.some(
+      (data) => data.itemNo === item.itemNo
+    );
+
+    console.log("isExist", isExist);
+    if (isExist) {
+      const payload = {
+        item: products,
+        acctNo: acctNo,
+        itemNo: item?.itemNo,
+        price: item?.price,
+        qty:  item?.qty + qty,
+        emailAddress: email,
+        qtyType: "CASE",
+        cartType: "CART",
+        cartTypeDesc: "",
+        goScan: "Y",
+        storeNo: "",
+        dateAdded: new Date().toISOString(),
+      };
+      dispatch(updateCart({ acctNo, token, payload }));
+    } else {
+      const payload = {
+        cartTypeDesc: "",
+        item: { documentCount: 0 },
+        itemNo: item?.itemNo,
+        storeNo: "",
+        qty: item?.qty,
+        acctNo: acctNo,
+        emailAddress: email,
+        price: item?.price,
+        goScan: "YES",
+        qtyType: "CASE",
+        cartType: "CART",
+      };
+
+      dispatch(
+        addToCartFirst({
+          acctNo,
+          token,
+          payload,
+        })
+      );
+    }
+  };
+
+  const AllAddtoCart = () => {
+    prevOrderDetails?.orderDetails.map((item) => {
+      const isExist = cartProducts.products.some(
+        (data) => data.itemNo === item.itemNo
+      );
+
+      console.log("isExist", isExist);
+      if (isExist) {
+        const payload = {
+          item: products,
+          acctNo: acctNo,
+          itemNo: item?.itemNo,
+          price: item?.price,
+          qty:  item?.qty + qty,
+          emailAddress: email,
+          qtyType: "CASE",
+          cartType: "CART",
+          cartTypeDesc: "",
+          goScan: "Y",
+          storeNo: "",
+          dateAdded: new Date().toISOString(),
+        };
+        dispatch(updateCart({ acctNo, token, payload }));
+      } else {
+        const payload = {
+          cartTypeDesc: "",
+          item: { documentCount: 0 },
+          itemNo: item?.itemNo,
+          storeNo: "",
+          qty: item?.qty,
+          acctNo: acctNo,
+          emailAddress: email,
+          price: item?.price,
+          goScan: "YES",
+          qtyType: "CASE",
+          cartType: "CART",
+        };
+
+        dispatch(
+          addToCartFirst({
+            acctNo,
+            token,
+            payload,
+          })
+        );
+      }
+    });
+  };
 
   const TableHeader = () => {
     return (
@@ -64,6 +174,14 @@ const PreviousOrderDetails = ({
         </Text>
       </View>
 
+      <TouchableOpacity
+        style={styles.btn}
+        onPress={() => AllAddtoCart()}
+      >
+        <MaterialCommunityIcons name="cart-plus" size={24} color="white" />
+        <Text style={styles.btnLabel}>Add All Avaialable Items to Cart </Text>
+      </TouchableOpacity>
+
       <TableHeader />
       <FlatList
         data={prevOrderDetails?.orderDetails}
@@ -100,6 +218,7 @@ const PreviousOrderDetails = ({
                   name="cart-plus"
                   size={24}
                   color="red"
+                  onPress={() => IndAddtoCart(item)}
                 />
               </View>
             </View>
@@ -160,5 +279,21 @@ const styles = StyleSheet.create({
     width: 120,
     aspectRatio: 1,
     borderRadius: 10,
+  },
+  btn: {
+    backgroundColor: Colors.main,
+    padding: 10,
+    margin: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnLabel: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+    marginLeft: 10,
   },
 });

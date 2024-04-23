@@ -35,7 +35,6 @@ export const loginUser = createAsyncThunk(
         }),
       });
       let data = await response.json();
-      console.log("login data===>", data);
       if (!response.ok)
         throw new Error(
           `${
@@ -311,6 +310,76 @@ export const fetchSwitchAccountRes = createAsyncThunk(
   }
 );
 
+export const selectSwitchAccount = createAsyncThunk(
+  "user/selectSwitchAccount",
+  async ({ acctNo, token,navigation }, { getState, dispatch,rejectWithValue }) => {
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    const url = `${apiUrl}/customerrecs/${acctNo}`;
+    console.log("Fetching switch account details with hardcoded account:", url);
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Clientid: company.clientID,
+          Clientsecret: company.clientSecret,
+        },
+      });
+
+      const text = await response.text(); // Get text to avoid JSON parsing errors initially
+      if (!response.ok) {
+        console.error("Error select  switch accounts:", text);
+        throw new Error(`Could not select switch account: ${response.status}`);
+      }
+      const data = JSON.parse(text); // Parse text to JSON manually
+      const payload ={
+        AcctNo: data?.acctNo,
+        EmailAddress: state?.user?.user?.emailAddress,
+      }
+      dispatch(Webloginacctrecs({token: token,payload,navigation}))
+      return data;
+    } catch (error) {
+      console.error("Catch error:", error);
+      return rejectWithValue(error.toString());
+    }
+  }
+);
+
+export const Webloginacctrecs = createAsyncThunk(
+  "user/Webloginacctrecs",
+  async ({ token,payload, navigation }, { getState, rejectWithValue }) => {
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    const url = `${apiUrl}/Webloginacctrecs`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Clientid: company.clientID,
+          Clientsecret: company.clientSecret,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const text = await response.text();
+      if (!response.ok) {
+        console.error("Error add to cart:", text);
+        throw new Error(`Error add to cart: ${response.status}`);
+      }
+      navigation.navigate("KeyPad");
+      // dispatch(getCart({ acctNo, token }));
+      return true;
+    } catch (error) {
+      console.error("Catch error:", error);
+      return rejectWithValue(error.toString());
+    }
+  }
+);
+
 const initialState = {
   user: null,
   accessToken: null,
@@ -390,7 +459,7 @@ const userReducer = createSlice({
       })
 
       .addCase(fetchSwitchAccountRes.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = false;
       })
       .addCase(fetchSwitchAccountRes.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -416,15 +485,38 @@ const userReducer = createSlice({
         state.isLoading = true;
       })
       .addCase(fetchCompanyInfo.fulfilled, (state, action) => {
-        // Update the state with the fetched company info
         state.companyInfo = action.payload;
         state.isLoading = false;
       })
       .addCase(fetchCompanyInfo.rejected, (state, action) => {
-        // Optionally handle error
         state.error = action.payload;
         state.isLoading = false;
-      });
+      })
+      .addCase(submitOrder.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(submitOrder.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(submitOrder.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(selectSwitchAccount.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(selectSwitchAccount.fulfilled, (state, action) => {
+        // state.isLoading = false;
+        state.user = {
+          ...state.user,
+          acctNo: action.payload.acctNo,
+          companyName: action.payload.companyName,
+        };
+      })
+      .addCase(selectSwitchAccount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
   },
 });
 

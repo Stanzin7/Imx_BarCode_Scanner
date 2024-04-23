@@ -38,12 +38,12 @@ const PreviousOrder = ({ navigation }) => {
       <FlatList
         data={prevOrder}
         keyExtractor={(item) => item.orderNo}
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
           const formattedDate = moment(item?.dateCreated).format("M/D/YYYY");
           const formattedTime = moment(item?.dateCreated).format("h:mm:ss A");
 
           return (
-            <View style={styles.tableRow}>
+            <View key={index} style={styles.tableRow}>
               <Text style={[styles.value, { flex: 0.2 }]}>{item.orderNo}</Text>
               <View style={{ flex: 0.4 }}>
                 <Text style={styles.value}>{formattedDate}</Text>
