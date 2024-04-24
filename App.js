@@ -12,6 +12,9 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistedStore } from "./redux/store";
 import Authentication from "./authentication/Authentication";
 import Routes from "./navigation/routes";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 export default function App() {
   return (

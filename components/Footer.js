@@ -22,7 +22,7 @@ const Footer = ({
   handleCheckout, // Assuming this function is passed down as a prop
   totalWeight,
 }) => {
-  const isLoading = useSelector((state) => state.entities.cart.isLoading);
+  const isLoading = useSelector((state) => state.user.isLoading);
 
   return (
     <View style={styles.footerContainer}>

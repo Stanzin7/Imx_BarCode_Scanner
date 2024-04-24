@@ -7,18 +7,66 @@ import Menu from "../screens/menu";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import PreviousOrder from "../screens/previousOrder";
 import PreviousOrderDetails from "../screens/previousOrderDetails";
 import SwitchAccount from "../screens/switchAccount";
 import profile from "../screens/profile";
+import { Text, View } from "react-native";
+import { useSelector } from "react-redux";
+import Home from "../screens/home";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+const customStyle = {
+  fontSize: 13,
+  fontWeight: "bold",
+  lineHeight: 20,
+  color: "white",
+};
 const Tabs = () => {
+  const company = useSelector((state) => state.user.user?.customers[0]);
   return (
     <Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={Home}
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="home-outline"
+              size={size}
+              color={color}
+            />
+          ),
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+          headerTitle: () => (
+            <View style={{ alignItems: "center" }}>
+              <Text style={customStyle}>IMX</Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  customStyle,
+                  {
+                    marginBottom: 5,
+                  },
+                ]}
+              >
+                Welcome {company?.company + " - " + company?.acctNo}
+              </Text>
+            </View>
+          ),
+        }}
+      />
+
       <Tab.Screen
         name="Scanner"
         component={Scanner}
@@ -39,7 +87,22 @@ const Tabs = () => {
             fontWeight: "bold",
             fontSize: 15,
           },
-          headerTitle: "IMX",
+          headerTitle: () => (
+            <View style={{ alignItems: "center" }}>
+              <Text style={customStyle}>IMX</Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  customStyle,
+                  {
+                    marginBottom: 5,
+                  },
+                ]}
+              >
+                Welcome {company?.company + " - " + company?.acctNo}
+              </Text>
+            </View>
+          ),
         }}
       />
       <Tab.Screen
@@ -58,7 +121,22 @@ const Tabs = () => {
             fontWeight: "bold",
             fontSize: 15,
           },
-          headerTitle: "IMX",
+          headerTitle: () => (
+            <View style={{ alignItems: "center" }}>
+              <Text style={customStyle}>IMX</Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  customStyle,
+                  {
+                    marginBottom: 5,
+                  },
+                ]}
+              >
+                Welcome {company?.company + " - " + company?.acctNo}
+              </Text>
+            </View>
+          ),
         }}
       />
       <Tab.Screen
@@ -77,7 +155,22 @@ const Tabs = () => {
             fontWeight: "bold",
             fontSize: 15,
           },
-          headerTitle: "IMX",
+          headerTitle: () => (
+            <View style={{ alignItems: "center" }}>
+              <Text style={customStyle}>IMX</Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  customStyle,
+                  {
+                    marginBottom: 5,
+                  },
+                ]}
+              >
+                Welcome {company?.company + " - " + company?.acctNo}
+              </Text>
+            </View>
+          ),
         }}
       />
       <Tab.Screen

@@ -1,7 +1,38 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import companyConfigs from "../../config/companyConfig";
-import { useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export const fetchCategory = createAsyncThunk(
+  "user/fetchCategory",
+  async ({ token }, { getState, rejectWithValue }) => {
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    const url = `${apiUrl}/webcatrecs`;
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Clientid: company.clientID,
+          Clientsecret: company.clientSecret,
+        },
+      });
+
+      const text = await response.text(); // Get text to avoid JSON parsing errors initially
+      if (!response.ok) {
+        console.error("Error fetching category:", text);
+        throw new Error(`Could not fetch category: ${response.status}`);
+      }
+      const data = JSON.parse(text); // Parse text to JSON manually
+      const slicedData = Array.isArray(data) ? data.slice(0, 19) : [];
+      return slicedData;
+    } catch (error) {
+      console.error("Catch error:", error);
+      return rejectWithValue(error.toString());
+    }
+  }
+);
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
@@ -10,12 +41,21 @@ export const loginUser = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
+      // const normalizedCompanyName = companyName
+      // .trim()
+      // .toUpperCase()
+      // .replace(/_/g, "");
       const normalizedCompanyName = companyName
-        .trim()
-        .toUpperCase()
-        .replace(/_/g, "");
+        .replace(/ /g, "") // Remove spaces
+        .toUpperCase(); // Convert to uppercase
+
+      // const companyKey = Object.keys(companyConfigs).find((key) => {
+      //   return key.toUpperCase().replace(/_/g, " ") === normalizedCompanyName;
+      // });
+
       const companyKey = Object.keys(companyConfigs).find((key) => {
-        return key.toUpperCase().replace(/_/g, " ") === normalizedCompanyName;
+        const normalizedKey = key.replace(/_/g, "").toUpperCase();
+        return normalizedKey === normalizedCompanyName;
       });
       if (!companyKey) {
         throw new Error(`Company '${companyName}' not found in config`);
@@ -41,6 +81,18 @@ export const loginUser = createAsyncThunk(
             data.message || "Could not log in"
           }\nplease check your credentials and try again`
         );
+
+      //
+      const res = await mobileAppPurchFlagAPI(company, data.token);
+      console.log(
+        "Mobile App Purch Flag API Response:",
+        res?.mobileAppPurchFlag
+      );
+
+      if (res?.mobileAppPurchFlag == "N") {
+        throw new Error("Mobile App Purchases are disabled for this account");
+      }
+
       data = { ...data, companyName: company }; // Simulated response with companyName
       AsyncStorage.setItem("companyName", companyName);
       return data;
@@ -155,7 +207,7 @@ export const previousOrder = createAsyncThunk(
 
 export const previousOrderDetails = createAsyncThunk(
   "user/previousOrderDetails",
-  async ({ orderNo, acctNo, token }, { getState, rejectWithValue }) => {
+  async ({ orderNo, acctNo, token, imgUrl }, { getState, rejectWithValue }) => {
     const state = getState();
     const company = state?.user?.user?.company;
     const apiUrl = company?.apiUrl;
@@ -180,10 +232,7 @@ export const previousOrderDetails = createAsyncThunk(
       const updatedData = data?.orderDetails.map((item) => {
         return {
           ...item,
-          image:
-            "https://imxshop.cmxsoftware.com/capitalItemImages/" +
-            item.itemNo +
-            "/0thn.jpg",
+          image: imgUrl + item.itemNo + "/0thn.jpg",
         };
       });
       data.orderDetails = updatedData;
@@ -234,18 +283,14 @@ export const fetchCompanyInfo = createAsyncThunk(
     try {
       const company = state?.user?.user?.company;
       const apiUrl = company?.apiUrl;
-      const response = await fetch(
-        // "https://imxshop.cmxsoftware.com/IMXSHOP_API_CAPITAL/api/Webconfigrecs",
-        `${apiUrl}/Webconfigrecs`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${state.user.accessToken}`,
-            ClientID: company.clientID,
-            ClientSecret: company.clientSecret,
-          },
-        }
-      );
+      const response = await fetch(`${apiUrl}/Webconfigrecs`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${state.user.accessToken}`,
+          ClientID: company.clientID,
+          ClientSecret: company.clientSecret,
+        },
+      });
       if (!response.ok) {
         let errorMessage = "Failed to fetch company info";
         try {
@@ -256,10 +301,7 @@ export const fetchCompanyInfo = createAsyncThunk(
         }
         return rejectWithValue(errorMessage);
       }
-
       const data = await response.json();
-      // Ensure all properties exist to avoid "Cannot read property of null" errors
-      console.log(data);
       return {
         addressLine1: data.addressLine1 || "",
         addressLine2: data.addressLine2 || "",
@@ -270,13 +312,39 @@ export const fetchCompanyInfo = createAsyncThunk(
         newOrderEmail: data.newOrderEmail || "",
       };
     } catch (error) {
-      // Handle the error case where the error is not from the response
       return rejectWithValue(
         error instanceof Error ? error.message : "An unknown error occurred"
       );
     }
   }
 );
+
+const mobileAppPurchFlagAPI = async (company, token) => {
+  try {
+    const apiUrl = company?.apiUrl;
+    const response = await fetch(`${apiUrl}/Webconfigrecs`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ClientID: company.clientID,
+        ClientSecret: company.clientSecret,
+      },
+    });
+
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data: ${response.status}`);
+    }
+
+    // Parse the JSON response
+    const responseData = await response.json();
+
+    return responseData;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error; // Re-throw the error to handle it outside the function if needed
+  }
+};
 
 export const fetchSwitchAccountRes = createAsyncThunk(
   "user/fetchSwitchAccountRes",
@@ -312,7 +380,10 @@ export const fetchSwitchAccountRes = createAsyncThunk(
 
 export const selectSwitchAccount = createAsyncThunk(
   "user/selectSwitchAccount",
-  async ({ acctNo, token,navigation }, { getState, dispatch,rejectWithValue }) => {
+  async (
+    { acctNo, token, navigation },
+    { getState, dispatch, rejectWithValue }
+  ) => {
     const state = getState();
     const company = state?.user?.user?.company;
     const apiUrl = company?.apiUrl;
@@ -334,11 +405,11 @@ export const selectSwitchAccount = createAsyncThunk(
         throw new Error(`Could not select switch account: ${response.status}`);
       }
       const data = JSON.parse(text); // Parse text to JSON manually
-      const payload ={
+      const payload = {
         AcctNo: data?.acctNo,
         EmailAddress: state?.user?.user?.emailAddress,
-      }
-      dispatch(Webloginacctrecs({token: token,payload,navigation}))
+      };
+      dispatch(Webloginacctrecs({ token: token, payload, navigation }));
       return data;
     } catch (error) {
       console.error("Catch error:", error);
@@ -349,7 +420,7 @@ export const selectSwitchAccount = createAsyncThunk(
 
 export const Webloginacctrecs = createAsyncThunk(
   "user/Webloginacctrecs",
-  async ({ token,payload, navigation }, { getState, rejectWithValue }) => {
+  async ({ token, payload, navigation }, { getState, rejectWithValue }) => {
     const state = getState();
     const company = state?.user?.user?.company;
     const apiUrl = company?.apiUrl;
@@ -381,6 +452,7 @@ export const Webloginacctrecs = createAsyncThunk(
 );
 
 const initialState = {
+  category: null,
   user: null,
   accessToken: null,
   isLoading: false,
@@ -419,6 +491,17 @@ const userReducer = createSlice({
         state.accessToken = action.payload.token;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchCategory.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.category = action.payload;
+      })
+      .addCase(fetchCategory.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
@@ -510,13 +593,17 @@ const userReducer = createSlice({
         state.user = {
           ...state.user,
           acctNo: action.payload.acctNo,
-          companyName: action.payload.companyName,
+          customers: state.user.customers.map((customer) => ({
+            ...customer,
+            acctNo: action.payload.acctNo,
+            company: action.payload.company,
+          })),
         };
       })
       .addCase(selectSwitchAccount.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      })
+      });
   },
 });
 

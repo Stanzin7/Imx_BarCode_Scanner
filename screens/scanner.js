@@ -39,9 +39,7 @@ const Scanner = () => {
   const loading = useSelector((state) => state.entities.cart.isLoading);
   const isFocused = useIsFocused();
   const acctNo = useSelector((state) => state.user.user.acctNo);
-  // useEffect(() => {
-  //   console.log("Initial scanned state:", scanned); // Log initial scanned state
-  // }, []);
+
 
   useEffect(() => {
     if (isFocused) {
@@ -250,7 +248,7 @@ const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    backgroundColor: "transparent",
+    backgroundColor: "white",
   },
   container: {
     alignItems: "center",

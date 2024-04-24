@@ -32,13 +32,16 @@ const ScannedItemCard = ({
   const products = useSelector(
     (state) => state.entities.cart.products[0]?.item
   );
+  const company = useSelector((state) => state.user.user.company);
+  const imgUrl = company?.imgUrl;
+
   const email = useSelector((state) => state.user.user.emailAddress);
   const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageUri, setImageUri] = useState(
-    `https://imxshop.cmxsoftware.com/capitalItemImages/${itemNo}/0thn.jpg`
+    `${imgUrl}/${itemNo}/0thn.jpg`
   );
   const [highResImageUri, setHighResImageUri] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -48,7 +51,7 @@ const ScannedItemCard = ({
   }, [itemNo]);
 
   const getHighResUri = (index) =>
-    `https://imxshop.cmxsoftware.com/capitalItemImages/${itemNo}/${index}.jpg`;
+    `${imgUrl}/${itemNo}/${index}.jpg`;
 
   useEffect(() => {
     const checkImage = async () => {

@@ -8,7 +8,7 @@ import MainStack from "./Tabs";
 const Routes = () => {
   const isLoggedIn = useSelector((state) => state.user.user !== null);
   useAutoLogout(isLoggedIn);
-  console.log(isLoggedIn);
+  console.log("isLoggedIn:",isLoggedIn);
 
   return (
     <View style={{ flex: 1 }}>

@@ -4,12 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { previousOrder } from "../redux/reducers/userReducer";
 import moment from "moment";
 import { MaterialIcons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const PreviousOrder = ({ navigation }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.accessToken);
   const acctNo = useSelector((state) => state.user.user.acctNo);
   const prevOrder = useSelector((state) => state.user.previousOrders);
+
+  console.log("prevOrder", acctNo);
 
   useEffect(() => {
     dispatch(previousOrder({ acctNo, token }));
@@ -20,6 +23,16 @@ const PreviousOrder = ({ navigation }) => {
       orderNo: orderNo,
     });
   };
+
+  if(prevOrder.length === 0) {
+    return (
+      <SafeAreaView style={styles.safeAreaContainerEmptyCart}>
+          <Text style={styles.text}>
+            You have no previous orders.
+          </Text>
+      </SafeAreaView>
+    )
+  }
 
   const TableHeader = () => {
     return (
@@ -72,6 +85,12 @@ const PreviousOrder = ({ navigation }) => {
 export default PreviousOrder;
 
 const styles = StyleSheet.create({
+  safeAreaContainerEmptyCart: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   tableHeader: {
     flexDirection: "row",
     paddingVertical: 8,
@@ -96,5 +115,11 @@ const styles = StyleSheet.create({
   },
   value: {
     textAlign: "center",
+  },
+  text: {
+    textAlign: "center",
+    marginTop: 10,
+    fontSize: 18,
+    color: "grey",
   },
 });

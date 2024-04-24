@@ -24,6 +24,7 @@ import { getRoundedTotalEstimatedWeight } from "../redux/reducers/cartReducer";
 import { submitOrder } from "../redux/reducers/userReducer";
 import Colors from "../constants/Colors";
 import { useIsFocused } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const Cart = () => {
   const cartProducts = useSelector((state) => getCartProducts(state));
@@ -128,6 +129,23 @@ const Cart = () => {
       prevOption === "Pickup" ? "Delivery" : "Pickup"
     );
   };
+
+  if (cartProducts?.products?.length === 0) {
+    return (
+      <SafeAreaView style={styles.safeAreaContainerEmptyCart}>
+        <View>
+          <MaterialCommunityIcons
+            name="cart-plus"
+            size={50}
+            color="grey"
+            style={{ textAlign: "center" }}
+          />
+          <Text style={styles.emptyCartText}>Your Cart is Empty</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <KeyboardAvoidingView
@@ -178,9 +196,9 @@ const Cart = () => {
                 totalWeight={totalWeight}
               />
             }
-            ListEmptyComponent={
-              <Text style={styles.emptyCartText}>Your Cart is Empty</Text>
-            }
+            // ListEmptyComponent={
+            //   <Text style={styles.emptyCartText}>Your Cart is Empty</Text>
+            // }
           />
         </View>
       </KeyboardAvoidingView>
@@ -192,6 +210,13 @@ const Cart = () => {
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
+    backgroundColor: "white",
+  },
+  safeAreaContainerEmptyCart: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
   },
   container: {
     flex: 1,
@@ -202,7 +227,7 @@ const styles = StyleSheet.create({
   },
   emptyCartText: {
     textAlign: "center",
-    marginTop: 50,
+    marginTop: 10,
     fontSize: 18,
     color: "grey",
   },

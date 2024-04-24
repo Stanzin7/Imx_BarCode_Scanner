@@ -11,9 +11,9 @@ const styles = StyleSheet.create({
   headerContainer: {
     padding: 20,
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e2e2",
+    // backgroundColor: "#FFFFFF",
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#e2e2e2",
   },
   headerText: {
     fontSize: 22,

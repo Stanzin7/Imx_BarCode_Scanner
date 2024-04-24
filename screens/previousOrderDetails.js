@@ -31,9 +31,11 @@ const PreviousOrderDetails = ({
     (state) => state.entities.cart.products[0]?.item
   );
   const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
+  const company = useSelector((state) => state.user.user.company);
+  const imgUrl = company?.imgUrl;
 
   useEffect(() => {
-    dispatch(previousOrderDetails({ orderNo, acctNo, token }));
+    dispatch(previousOrderDetails({ orderNo, acctNo, token, imgUrl }));
   }, []);
 
   const IndAddtoCart = (item) => {
@@ -48,7 +50,7 @@ const PreviousOrderDetails = ({
         acctNo: acctNo,
         itemNo: item?.itemNo,
         price: item?.price,
-        qty:  item?.qty + qty,
+        qty: item?.qty + qty,
         emailAddress: email,
         qtyType: "CASE",
         cartType: "CART",
@@ -96,7 +98,7 @@ const PreviousOrderDetails = ({
           acctNo: acctNo,
           itemNo: item?.itemNo,
           price: item?.price,
-          qty:  item?.qty + qty,
+          qty: item?.qty + qty,
           emailAddress: email,
           qtyType: "CASE",
           cartType: "CART",
@@ -174,10 +176,7 @@ const PreviousOrderDetails = ({
         </Text>
       </View>
 
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={() => AllAddtoCart()}
-      >
+      <TouchableOpacity style={styles.btn} onPress={() => AllAddtoCart()}>
         <MaterialCommunityIcons name="cart-plus" size={24} color="white" />
         <Text style={styles.btnLabel}>Add All Avaialable Items to Cart </Text>
       </TouchableOpacity>
@@ -186,14 +185,11 @@ const PreviousOrderDetails = ({
       <FlatList
         data={prevOrderDetails?.orderDetails}
         keyExtractor={(item) => item.itemNo}
-        renderItem={({ item }) => {
-          console.log("item", item);
+        renderItem={({ item, index }) => {
           const itemName = item?.item?.itemNo + " - " + item?.item?.description;
           const imageUri = item?.image;
-
-          console.log("imageUri", imageUri);
           return (
-            <View style={styles.tableRow}>
+            <View key={index} style={styles.tableRow}>
               <View
                 style={{
                   flex: 0.5,
