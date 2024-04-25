@@ -24,7 +24,7 @@ const PreviousOrder = ({ navigation }) => {
     });
   };
 
-  if(prevOrder.length === 0) {
+  if(prevOrder?.length === 0) {
     return (
       <SafeAreaView style={styles.safeAreaContainerEmptyCart}>
           <Text style={styles.text}>

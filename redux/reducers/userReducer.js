@@ -89,7 +89,7 @@ export const loginUser = createAsyncThunk(
         res?.mobileAppPurchFlag
       );
 
-      if (res?.mobileAppPurchFlag == "N") {
+      if (res?.mobileAppPurchFlag != "N") {
         throw new Error("Mobile App Purchases are disabled for this account");
       }
 

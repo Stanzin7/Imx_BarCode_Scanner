@@ -25,12 +25,10 @@ const PreviousOrderDetails = ({
   const prevOrderDetails = useSelector(
     (state) => state.user.previousOrderDetails
   );
-  const cartProducts = useSelector((state) => state.entities.cart);
   const email = useSelector((state) => state.user.user.emailAddress);
   const products = useSelector(
-    (state) => state.entities.cart.products[0]?.item
+    (state) => state.entities.cart.products
   );
-  const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
   const company = useSelector((state) => state.user.user.company);
   const imgUrl = company?.imgUrl;
 
@@ -39,18 +37,21 @@ const PreviousOrderDetails = ({
   }, []);
 
   const IndAddtoCart = (item) => {
-    const isExist = cartProducts.products.some(
+    const isExist = products.some(
       (data) => data.itemNo === item.itemNo
     );
 
-    console.log("isExist", isExist);
+    const existingItem = products.find(data => data.itemNo === item.itemNo);
+
+
+    console.log("isExist", item?.qty,existingItem?.qty);
     if (isExist) {
       const payload = {
-        item: products,
+        item: products?.item,
         acctNo: acctNo,
         itemNo: item?.itemNo,
         price: item?.price,
-        qty: item?.qty + qty,
+        qty: item?.qty + existingItem?.qty,
         emailAddress: email,
         qtyType: "CASE",
         cartType: "CART",
@@ -87,18 +88,20 @@ const PreviousOrderDetails = ({
 
   const AllAddtoCart = () => {
     prevOrderDetails?.orderDetails.map((item) => {
-      const isExist = cartProducts.products.some(
+      const isExist = products.some(
         (data) => data.itemNo === item.itemNo
       );
+
+      const existingItem = products.find(data => data.itemNo === item.itemNo);
 
       console.log("isExist", isExist);
       if (isExist) {
         const payload = {
-          item: products,
+          item: products?.item,
           acctNo: acctNo,
           itemNo: item?.itemNo,
           price: item?.price,
-          qty: item?.qty + qty,
+          qty: item?.qty + existingItem?.qty,
           emailAddress: email,
           qtyType: "CASE",
           cartType: "CART",

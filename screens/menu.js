@@ -78,7 +78,7 @@ const Menu = ({ navigation }) => {
       id: 6,
       name: "Fax",
       icon: "fax",
-      menuInfo: companyInfo?.fax1 + ", " + companyInfo?.fax2,
+      menuInfo: companyInfo?.fax1 + "\n" + companyInfo?.fax2,
       screen: "Fax",
     },
     {
@@ -92,7 +92,7 @@ const Menu = ({ navigation }) => {
       id: 8,
       name: "Privacy Policy",
       icon: "policy",
-      screen: "Privacy Policy",
+      screen: "privacyPolicy",
       type: "MaterialIcons",
     },
     {

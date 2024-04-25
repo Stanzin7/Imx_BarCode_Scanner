@@ -17,7 +17,11 @@ import {
 import { CameraView, useCameraPermissions } from "expo-camera/next";
 import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
-import { addProduct, getCart, getCartProducts } from "../redux/reducers/cartReducer";
+import {
+  addProduct,
+  getCart,
+  getCartProducts,
+} from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
@@ -40,10 +44,12 @@ const Scanner = () => {
   const isFocused = useIsFocused();
   const acctNo = useSelector((state) => state.user.user.acctNo);
 
-
   useEffect(() => {
     if (isFocused) {
       dispatch(getCart({ acctNo, token }));
+    }
+    else{
+      setIsCameraVisible(false);
     }
   }, [isFocused]);
 
@@ -200,11 +206,11 @@ const Scanner = () => {
           )}
         </View>
       )}
-       {loading && (
-            <View style={styles.overlay}>
-              <ActivityIndicator size="large" color={Colors.main} />
-            </View>
-          )}
+      {loading && (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color={Colors.main} />
+        </View>
+      )}
       <FlatList
         data={cartProducts.products}
         contentContainerStyle={{

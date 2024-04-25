@@ -29,16 +29,11 @@ import { StatusBar } from "expo-status-bar";
 import { useIsFocused } from "@react-navigation/native";
 
 const KeyPad = () => {
-  // const cartProducts = useSelector(getCartProducts);
-  const cartProducts = useSelector((state) => state.entities.cart);
   const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
   const acctNo = useSelector((state) => state.user.user.acctNo);
   const email = useSelector((state) => state.user.user.emailAddress);
   const loading = useSelector((state) => state.entities.cart.isLoading);
-  const products = useSelector(
-    (state) => state.entities.cart.products[0]?.item
-  );
-  const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
+  const products = useSelector((state) => state.entities.cart.products);
 
   const dispatch = useDispatch();
   const [upc, setUPC] = useState("");
@@ -82,18 +77,22 @@ const KeyPad = () => {
             playSound(require("../assets/sounds/Found.wav"));
             setItemDetails((currentItems) => [response, ...currentItems]);
 
-            const isExist = cartProducts.products.some(
+            const isExist = products.some(
+              (item) => item.itemNo === response.itemNo
+            );
+
+            const existingItem = products.find(
               (item) => item.itemNo === response.itemNo
             );
 
             console.log("isExist", isExist);
             if (isExist) {
               const payload = {
-                item: products,
+                item: products?.item,
                 acctNo: acctNo,
                 itemNo: response.itemNo,
                 price: response.sellPriceCase1,
-                qty: qty + 1,
+                qty: existingItem?.qty + 1,
                 emailAddress: email,
                 qtyType: "CASE",
                 cartType: "CART",
@@ -159,7 +158,7 @@ const KeyPad = () => {
         </View>
       )}
       <FlatList
-        data={cartProducts.products}
+        data={products}
         contentContainerStyle={{
           marginTop: 10,
           paddingBottom: 100,

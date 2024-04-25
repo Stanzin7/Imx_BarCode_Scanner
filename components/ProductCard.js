@@ -29,20 +29,15 @@ const ScannedItemCard = ({
   const [isOpen, setisOpen] = useState(true);
   const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
   const acctNo = useSelector((state) => state.user.user.acctNo);
-  const products = useSelector(
-    (state) => state.entities.cart.products[0]?.item
-  );
+  const products = useSelector((state) => state.entities.cart.products);
   const company = useSelector((state) => state.user.user.company);
   const imgUrl = company?.imgUrl;
 
   const email = useSelector((state) => state.user.user.emailAddress);
-  const qty = useSelector((state) => state.entities.cart.products[0]?.qty);
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageUri, setImageUri] = useState(
-    `${imgUrl}/${itemNo}/0thn.jpg`
-  );
+  const [imageUri, setImageUri] = useState(`${imgUrl}/${itemNo}/0thn.jpg`);
   const [highResImageUri, setHighResImageUri] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -50,8 +45,7 @@ const ScannedItemCard = ({
     setHighResImageUri(getHighResUri(0));
   }, [itemNo]);
 
-  const getHighResUri = (index) =>
-    `${imgUrl}/${itemNo}/${index}.jpg`;
+  const getHighResUri = (index) => `${imgUrl}/${itemNo}/${index}.jpg`;
 
   useEffect(() => {
     const checkImage = async () => {
@@ -89,8 +83,14 @@ const ScannedItemCard = ({
   const roundedUnitPrice = unitPrice.toFixed(2);
 
   const incrementCounter = () => {
+    const existingItem = products.find((product) => product.itemNo === itemNo);
+
+    console.log("existingItem", existingItem);
+    const qty = existingItem?.qty || 0;
+
+    console.log("qty", qty);
     const payload = {
-      item: products,
+      item: products?.item,
       acctNo: acctNo,
       itemNo: itemNo,
       price: sellPriceCase1,
@@ -108,11 +108,16 @@ const ScannedItemCard = ({
     // dispatch(increaseQuanity({ itemNo: itemNo }));
   };
   const decrementCounter = () => {
+    // if (qty === 1) {
+    //   dispatch(deleteCart({ acctNo, itemNo, token }));
+    // } else {
+    const existingItem = products.find((product) => product.itemNo === itemNo);
+    const qty = existingItem?.qty || 0;
     if (qty === 1) {
       dispatch(deleteCart({ acctNo, itemNo, token }));
     } else {
       const payload = {
-        item: products,
+        item: products?.item,
         acctNo: acctNo,
         itemNo: itemNo,
         price: sellPriceCase1,

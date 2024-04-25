@@ -251,7 +251,10 @@ export const cartReducer = createSlice({
       })
       .addCase(getCart.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.products = action.payload;
+        const sortedProducts = action.payload.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+        state.products = sortedProducts;
+      
+        // state.products = action.payload;
       })
       .addCase(getCart.rejected, (state, action) => {
         state.isLoading = false;

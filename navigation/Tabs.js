@@ -14,12 +14,13 @@ import profile from "../screens/profile";
 import { Text, View } from "react-native";
 import { useSelector } from "react-redux";
 import Home from "../screens/home";
+import privacyPolicy from "../screens/privacyPolicy";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const customStyle = {
-  fontSize: 13,
+  fontSize: 15,
   fontWeight: "bold",
   lineHeight: 20,
   color: "white",
@@ -28,7 +29,7 @@ const Tabs = () => {
   const company = useSelector((state) => state.user.user?.customers[0]);
   return (
     <Tab.Navigator>
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Home"
         component={Home}
         options={{
@@ -65,7 +66,7 @@ const Tabs = () => {
             </View>
           ),
         }}
-      />
+      /> */}
 
       <Tab.Screen
         name="Scanner"
@@ -89,7 +90,7 @@ const Tabs = () => {
           },
           headerTitle: () => (
             <View style={{ alignItems: "center" }}>
-              <Text style={customStyle}>IMX</Text>
+              {/* <Text style={customStyle}>IMX</Text> */}
               <Text
                 numberOfLines={1}
                 style={[
@@ -99,7 +100,7 @@ const Tabs = () => {
                   },
                 ]}
               >
-                Welcome {company?.company + " - " + company?.acctNo}
+                Welcome {company?.company}
               </Text>
             </View>
           ),
@@ -123,7 +124,7 @@ const Tabs = () => {
           },
           headerTitle: () => (
             <View style={{ alignItems: "center" }}>
-              <Text style={customStyle}>IMX</Text>
+              {/* <Text style={customStyle}>IMX</Text> */}
               <Text
                 numberOfLines={1}
                 style={[
@@ -133,7 +134,7 @@ const Tabs = () => {
                   },
                 ]}
               >
-                Welcome {company?.company + " - " + company?.acctNo}
+                Welcome {company?.company}
               </Text>
             </View>
           ),
@@ -157,7 +158,7 @@ const Tabs = () => {
           },
           headerTitle: () => (
             <View style={{ alignItems: "center" }}>
-              <Text style={customStyle}>IMX</Text>
+              {/* <Text style={customStyle}>IMX</Text> */}
               <Text
                 numberOfLines={1}
                 style={[
@@ -167,7 +168,7 @@ const Tabs = () => {
                   },
                 ]}
               >
-                Welcome {company?.company + " - " + company?.acctNo}
+                Welcome {company?.company}
               </Text>
             </View>
           ),
@@ -258,6 +259,22 @@ const MainStack = () => {
         component={profile}
         options={{
           title: "Profile",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="privacyPolicy"
+        component={privacyPolicy}
+        options={{
+          title: "Privacy Policy",
           headerStyle: {
             backgroundColor: "#007AFF",
           },
