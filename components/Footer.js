@@ -57,7 +57,11 @@ const Footer = ({
         />
       </View>
 
-      <Pressable style={styles.orderButton} onPress={handleCheckout}>
+      <Pressable
+        style={styles.orderButton}
+        onPress={handleCheckout}
+        disabled={isLoading ? true : false}
+      >
         {isLoading ? (
           <ActivityIndicator color="white" />
         ) : (

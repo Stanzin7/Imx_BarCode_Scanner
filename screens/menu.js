@@ -85,7 +85,7 @@ const Menu = ({ navigation }) => {
       id: 7,
       name: "Terms & Conditions",
       icon: "questioncircleo",
-      screen: "Terms & Conditions",
+      screen: "termsAndConditions",
       type: "AntDesign",
     },
     {

@@ -1,10 +1,10 @@
 import React from "react";
 import { ScrollView, Text, View, StyleSheet } from "react-native";
 
-const PrivacyPolicy = () => {
+const TeamsCondition = () => {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Privacy Policy</Text>
+      <Text style={styles.title}>Teams & Condition</Text>
 
       <Text style={styles.subtitle}>Effective Date: December 10, 2023</Text>
 
@@ -176,4 +176,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PrivacyPolicy;
+export default TeamsCondition;

@@ -10,11 +10,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PreviousOrder from "../screens/previousOrder";
 import PreviousOrderDetails from "../screens/previousOrderDetails";
 import SwitchAccount from "../screens/switchAccount";
-import profile from "../screens/profile";
 import { Text, View } from "react-native";
 import { useSelector } from "react-redux";
-import Home from "../screens/home";
-import privacyPolicy from "../screens/privacyPolicy";
+import TeamsCondition from "../screens/teamsCondition";
+import PrivacyPolicy from "../screens/privacyPolicy";
+import Profile from "../screens/profile";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -256,7 +256,7 @@ const MainStack = () => {
 
       <Stack.Screen
         name="profile"
-        component={profile}
+        component={Profile}
         options={{
           title: "Profile",
           headerStyle: {
@@ -272,9 +272,25 @@ const MainStack = () => {
 
       <Stack.Screen
         name="privacyPolicy"
-        component={privacyPolicy}
+        component={PrivacyPolicy}
         options={{
           title: "Privacy Policy",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="termsAndConditions"
+        component={TeamsCondition}
+        options={{
+          title: "Terms & Conditions",
           headerStyle: {
             backgroundColor: "#007AFF",
           },

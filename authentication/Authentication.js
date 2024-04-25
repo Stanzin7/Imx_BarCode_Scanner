@@ -8,6 +8,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
   ActivityIndicator, // Import ActivityIndicator for loading indication
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,8 +17,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Authentication = () => {
   const [companyName, setCompanyName] = useState("");
-  const [email, setEmail] = useState("snorzang65@gmail.com");
-  const [password, setPassword] = useState("Stanzin7@123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
 
@@ -77,7 +78,7 @@ const Authentication = () => {
           {/* Show login form if not loading and no user */}
           <View style={styles.imgContainer}>
             <Image
-              source={require("../assets/images/reg.png")}
+              source={require("../assets/images/reg1.jpg")}
               style={styles.logo}
             />
           </View>
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: 220,
+    width: Dimensions.get("window").width * 0.8,
     height: 220,
   },
   welcomeText: {
