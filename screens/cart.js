@@ -169,16 +169,16 @@ const Cart = () => {
               const itemDetails = item.item;
               return (
                 <ScannedItemCard
-                  key={itemDetails.itemNo}
-                  imageUrl={itemDetails.imageUrl}
-                  itemNo={itemDetails.itemNo}
-                  description={itemDetails.description}
-                  sellPriceCase1={itemDetails.sellPriceCase1}
-                  unitsPerCase={itemDetails.unitsPerCase}
-                  sellPriceUnit={itemDetails.sellPriceUnit}
-                  currentCount={item.qty}
-                  size={itemDetails.size}
-                  pack={itemDetails.pack}
+                  key={itemDetails?.itemNo}
+                  imageUrl={itemDetails?.imageUrl}
+                  itemNo={itemDetails?.itemNo}
+                  description={itemDetails?.description}
+                  sellPriceCase1={itemDetails?.sellPriceCase1}
+                  unitsPerCase={itemDetails?.unitsPerCase}
+                  sellPriceUnit={itemDetails?.sellPriceUnit}
+                  currentCount={item?.qty}
+                  size={itemDetails?.size}
+                  pack={itemDetails?.pack}
                 />
               );
             }}

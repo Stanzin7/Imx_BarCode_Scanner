@@ -19,8 +19,10 @@ import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addProduct,
+  addToCartFirst,
   getCart,
   getCartProducts,
+  updateCart,
 } from "../redux/reducers/cartReducer";
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 import { Audio } from "expo-av";
@@ -43,6 +45,9 @@ const Scanner = () => {
   const loading = useSelector((state) => state.entities.cart.isLoading);
   const isFocused = useIsFocused();
   const acctNo = useSelector((state) => state.user.user.acctNo);
+  const email = useSelector((state) => state.user.user.emailAddress);
+  const products = useSelector((state) => state.entities.cart.products);
+
 
   useEffect(() => {
     if (isFocused) {
@@ -77,7 +82,7 @@ const Scanner = () => {
   };
 
   const handleBarcodeScanned = async ({ type, data }) => {
-    // console.log("handleBarcodeScanned called", { scanned, data }); // Check if function is called when it shouldn't be
+    console.log("handleBarcodeScanned called", data ); // Check if function is called when it shouldn't be
     if (!scanned) {
       console.log("Processing new scan...");
       setScanned(true);
@@ -92,8 +97,58 @@ const Scanner = () => {
           if (response) {
             setIsCameraVisible(false);
             playSound(require("../assets/sounds/Found.wav"));
-            dispatch(addProduct({ item: response, itemNo: response.itemNo }));
+            // dispatch(addProduct({ item: response, itemNo: response.itemNo }));
             setItemDetails((currentItems) => [response, ...currentItems]);
+
+            const isExist = products.some(
+              (item) => item.itemNo === response.itemNo
+            );
+
+            const existingItem = products.find(
+              (item) => item.itemNo === response.itemNo
+            );
+
+            console.log("isExist", isExist);
+            if (isExist) {
+              const payload = {
+                item: products?.item,
+                acctNo: acctNo,
+                itemNo: response.itemNo,
+                price: response.sellPriceCase1,
+                qty: existingItem?.qty + 1,
+                emailAddress: email,
+                qtyType: "CASE",
+                cartType: "CART",
+                cartTypeDesc: "",
+                goScan: "Y",
+                storeNo: "",
+                dateAdded: new Date().toISOString(),
+              };
+              dispatch(updateCart({ acctNo, token, payload }));
+            } else {
+              const payload = {
+                cartTypeDesc: "",
+                item: { documentCount: 0 },
+                itemNo: response.itemNo,
+                storeNo: "",
+                qty: 1,
+                acctNo: acctNo,
+                emailAddress: email,
+                price: response.sellPriceCase1,
+                goScan: "YES",
+                qtyType: "CASE",
+                cartType: "CART",
+              };
+
+              console.log("Adding to cart for the first time", payload);
+              dispatch(
+                addToCartFirst({
+                  acctNo,
+                  token,
+                  payload,
+                })
+              );
+            }
           } else {
             playSound(require("../assets/sounds/NotFound.wav"));
             setIsCameraVisible(false);
@@ -223,16 +278,16 @@ const Scanner = () => {
           const itemDetails = item.item;
           return (
             <ScannedItemCard
-              key={itemDetails.itemNo}
-              imageUrl={itemDetails.imageUrl}
-              itemNo={itemDetails.itemNo}
-              description={itemDetails.description}
-              sellPriceCase1={itemDetails.sellPriceCase1}
-              unitsPerCase={itemDetails.unitsPerCase}
-              sellPriceUnit={itemDetails.sellPriceUnit}
-              currentCount={item.qty}
-              size={itemDetails.size}
-              pack={itemDetails.pack}
+              key={itemDetails?.itemNo}
+              imageUrl={itemDetails?.imageUrl}
+              itemNo={itemDetails?.itemNo}
+              description={itemDetails?.description}
+              sellPriceCase1={itemDetails?.sellPriceCase1}
+              unitsPerCase={itemDetails?.unitsPerCase}
+              sellPriceUnit={itemDetails?.sellPriceUnit}
+              currentCount={item?.qty}
+              size={itemDetails?.size}
+              pack={itemDetails?.pack}
             />
           );
         }}
