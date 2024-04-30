@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontStyle: "italic",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 50,
   },
   section: {
     marginBottom: 10,

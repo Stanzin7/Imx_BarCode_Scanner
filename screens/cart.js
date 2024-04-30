@@ -41,6 +41,7 @@ const Cart = () => {
   const company = user?.customers[0]?.company;
   const accNo = user?.acctNo;
   const isFocused = useIsFocused();
+  const isLoading = useSelector((state) => state.user.isLoading);
 
   useEffect(() => {
     if (isFocused) {
@@ -154,7 +155,7 @@ const Cart = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
       >
         <View style={styles.container}>
-          {loading && (
+          {(isLoading || loading) && (
             <View style={styles.overlay}>
               <ActivityIndicator size="large" color={Colors.main} />
             </View>

@@ -1,18 +1,18 @@
-import { StyleSheet, Text, View, FlatList } from "react-native";
+import { StyleSheet, Text, View, FlatList,ActivityIndicator } from "react-native";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { previousOrder } from "../redux/reducers/userReducer";
 import moment from "moment";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Colors from "../constants/Colors";
 
 const PreviousOrder = ({ navigation }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.accessToken);
   const acctNo = useSelector((state) => state.user.user.acctNo);
   const prevOrder = useSelector((state) => state.user.previousOrders);
-
-  console.log("prevOrder", acctNo);
+  const isLoading = useSelector((state) => state.user.isLoading);
 
   useEffect(() => {
     dispatch(previousOrder({ acctNo, token }));
@@ -23,6 +23,14 @@ const PreviousOrder = ({ navigation }) => {
       orderNo: orderNo,
     });
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={Colors.main}  />
+      </SafeAreaView>
+    );
+  }
 
   if(prevOrder?.length === 0) {
     return (

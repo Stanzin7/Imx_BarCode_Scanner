@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { submitOrder } from "./userReducer";
+import ShowToast from "../../hooks/ShowToast";
 // import { DEFUALT_FONT_SIZE } from "@utils/constants";
 
 // GET API
@@ -58,12 +59,15 @@ export const addToCartFirst = createAsyncThunk(
       const text = await response.text();
       if (!response.ok) {
         console.error("Error add to cart:", text);
+        ShowToast("Error adding item to cart", "error");
         throw new Error(`Error add to cart: ${response.status}`);
       }
       dispatch(getCart({ acctNo, token }));
+      ShowToast("Item added to cart", "success");
       return true;
     } catch (error) {
       console.error("Catch error:", error);
+      ShowToast("Error adding item to cart", "error");
       return rejectWithValue(error.toString());
     }
   }
@@ -94,12 +98,15 @@ export const deleteCart = createAsyncThunk(
       const text = await response.text();
       if (!response.ok) {
         console.error("Error delete cart:", text);
+        ShowToast("Error deleting item from cart", "error");
         throw new Error(`Error delete cart: ${response.status}`);
       }
       dispatch(getCart({ acctNo, token }));
+      ShowToast("Item deleted from cart", "success");
       return true;
     } catch (error) {
       console.error("Catch error:", error);
+      ShowToast("Error deleting item from cart", "error");
       return rejectWithValue(error.toString());
     }
   }
@@ -131,12 +138,15 @@ export const updateCart = createAsyncThunk(
       const text = await response.text();
       if (!response.ok) {
         console.error("Error update cart:", text);
+        ShowToast("Error updating cart", "error");
         throw new Error(`Error update cart: ${response.status}`);
       }
       dispatch(getCart({ acctNo, token }));
+      ShowToast("Cart updated successfully.", "success");
       return true;
     } catch (error) {
       console.error("Catch error:", error);
+      ShowToast("Error updating cart", "error");
       return rejectWithValue(error.toString());
     }
   }
@@ -165,12 +175,15 @@ export const clearCart = createAsyncThunk(
       const text = await response.text();
       if (!response.ok) {
         console.error("Error clear cart:", text);
+        ShowToast("Error deleting cart items", "error");
         throw new Error(`Error clear cart: ${response.status}`);
       }
       dispatch(getCart({ acctNo, token }));
+      // ShowToast("Cart item deleted successfully.", "success");
       return true;
     } catch (error) {
       console.error("Catch error:", error);
+      ShowToast("Error deleting cart items", "error");
       return rejectWithValue(error.toString());
     }
   }

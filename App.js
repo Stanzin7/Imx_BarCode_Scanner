@@ -13,6 +13,7 @@ import { store, persistedStore } from "./redux/store";
 import Authentication from "./authentication/Authentication";
 import Routes from "./navigation/routes";
 import { LogBox } from "react-native";
+import { RootSiblingParent } from "react-native-root-siblings";
 LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -21,7 +22,9 @@ export default function App() {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistedStore}>
         <NavigationContainer>
-          <Routes />
+          <RootSiblingParent>
+            <Routes />
+          </RootSiblingParent>
         </NavigationContainer>
       </PersistGate>
     </Provider>

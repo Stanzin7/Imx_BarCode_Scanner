@@ -22,8 +22,6 @@ const Footer = ({
   handleCheckout, // Assuming this function is passed down as a prop
   totalWeight,
 }) => {
-  const isLoading = useSelector((state) => state.user.isLoading);
-
   return (
     <View style={styles.footerContainer}>
       <View style={styles.totalContainer}>
@@ -60,13 +58,9 @@ const Footer = ({
       <Pressable
         style={styles.orderButton}
         onPress={handleCheckout}
-        disabled={isLoading ? true : false}
+        // disabled={isLoading ? true : false}
       >
-        {isLoading ? (
-          <ActivityIndicator color="white" />
-        ) : (
           <Text style={styles.orderButtonText}>Check Out</Text>
-        )}
       </Pressable>
     </View>
   );
