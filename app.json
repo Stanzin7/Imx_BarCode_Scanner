@@ -2,7 +2,7 @@
   "expo": {
     "name": "Imx",
     "slug": "Imx",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
@@ -11,18 +11,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ],
-        "NSCameraUsageDescription": "This app requires camera access to take photos.",
-        "NSMicrophoneUsageDescription": "This app requires microphone access to record audio."
-      }
+        "UIBackgroundModes": ["audio"],
+        "NSCameraUsageDescription": "This app requires camera access to take scan products.",
+        "NSMicrophoneUsageDescription": "This app requires speaker access to play audio."
+      },
+      "bundleIdentifier": "com.Imx.Scan",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,9 +39,15 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access the camera to scan products",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access the speaker to play audio",
           "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-barcode-scanner",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access the camera to scan products."
         }
       ]
     ],
