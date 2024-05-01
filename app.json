@@ -20,7 +20,7 @@
         "NSMicrophoneUsageDescription": "This app requires speaker access to play audio."
       },
       "bundleIdentifier": "com.Imx.Scan",
-      "buildNumber": "2"
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {
