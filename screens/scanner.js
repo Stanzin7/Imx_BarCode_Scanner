@@ -293,7 +293,14 @@ const Scanner = () => {
         }}
       />
       <View style={styles.buttonContainer}>
-        <Button color={"black"} title="Scan" onPress={handleScanAgainPress} />
+        {/* <Button color={"black"} title="Scan" onPress={handleScanAgainPress} /> */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={{padding: 10,}}
+          onPress={handleScanAgainPress}
+        >
+          <Text style={{ color: "white", textAlign:"center",fontSize:18 }}>Scan</Text>
+        </TouchableOpacity>
       </View>
       <ImageBackground
         source={require("../assets/images/logo1.png")}
