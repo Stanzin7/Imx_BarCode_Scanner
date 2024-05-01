@@ -84,6 +84,7 @@ const Tabs = () => {
             backgroundColor: "#007AFF",
           },
           headerTintColor: "#fff",
+          headerTitleAlign: "center",
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 15,
@@ -117,6 +118,7 @@ const Tabs = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -151,6 +153,7 @@ const Tabs = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -185,6 +188,7 @@ const Tabs = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -214,6 +218,7 @@ const MainStack = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -230,6 +235,7 @@ const MainStack = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -246,6 +252,7 @@ const MainStack = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -262,6 +269,7 @@ const MainStack = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -278,6 +286,7 @@ const MainStack = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
@@ -294,6 +303,7 @@ const MainStack = () => {
           headerStyle: {
             backgroundColor: "#007AFF",
           },
+          headerTitleAlign: "center",
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontWeight: "bold",
