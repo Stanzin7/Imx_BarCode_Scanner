@@ -266,7 +266,6 @@ export const cartReducer = createSlice({
         state.isLoading = false;
         const sortedProducts = action.payload.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
         state.products = sortedProducts;
-      
         // state.products = action.payload;
       })
       .addCase(getCart.rejected, (state, action) => {

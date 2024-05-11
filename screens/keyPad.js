@@ -8,7 +8,10 @@ import {
   Platform,
   ImageBackground,
   Dimensions,
+  TouchableOpacity,
   ActivityIndicator,
+  Text,
+  Keyboard,
 } from "react-native";
 import Colors from "../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,6 +30,7 @@ import { searchItemByBarcode } from "../redux/reducers/userReducer";
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
 import { useIsFocused } from "@react-navigation/native";
+import ShowToast from "../hooks/ShowToast";
 
 const KeyPad = () => {
   const token = useSelector((state) => state.user.accessToken); // Ensure you have this selector
@@ -34,6 +38,8 @@ const KeyPad = () => {
   const email = useSelector((state) => state.user.user.emailAddress);
   const loading = useSelector((state) => state.entities.cart.isLoading);
   const products = useSelector((state) => state.entities.cart.products);
+
+  console.log("products", products);
 
   const dispatch = useDispatch();
   const [upc, setUPC] = useState("");
@@ -62,9 +68,17 @@ const KeyPad = () => {
   const handleManualItemSubmit = async () => {
     if (upc) {
       console.log(upc);
+      //keyboard.dismiss();
+      Keyboard.dismiss();
       dispatch(searchItemByBarcode({ barcodeId: upc, token }))
         .unwrap()
         .then((response) => {
+          console.log("response", response);
+          if (response?.webOutOfStockFlag === "Y") {
+            ShowToast("Item is out of stock", "error");
+            playSound(require("../assets/sounds/NotFound.wav"));
+            return;
+          }
           if (
             response &&
             (response.itemNo === upc ||
@@ -85,8 +99,12 @@ const KeyPad = () => {
               (item) => item.itemNo === response.itemNo
             );
 
-            console.log("isExist", isExist);
             if (isExist) {
+              const currentDate = new Date();
+              const formattedDateString = currentDate.toLocaleString("en-US", {
+                timeZone: "America/New_York",
+              });
+
               const payload = {
                 item: products?.item,
                 acctNo: acctNo,
@@ -99,7 +117,7 @@ const KeyPad = () => {
                 cartTypeDesc: "",
                 goScan: "Y",
                 storeNo: "",
-                dateAdded: new Date().toISOString(),
+                dateAdded: existingItem?.dateAdded || formattedDateString,
               };
               dispatch(updateCart({ acctNo, token, payload }));
             } else {
@@ -127,6 +145,7 @@ const KeyPad = () => {
             }
           } else {
             playSound(require("../assets/sounds/NotFound.wav"));
+            ShowToast("Oops! Item not found", "error");
           }
         })
         .catch((error) => {
@@ -138,7 +157,7 @@ const KeyPad = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeAreaContainer}>
+    <View style={styles.safeAreaContainer}>
       <View style={styles.container}>
         <TextInput
           style={styles.input}
@@ -151,6 +170,12 @@ const KeyPad = () => {
           autoFocus={true}
           onSubmitEditing={handleManualItemSubmit}
         />
+        <TouchableOpacity
+          style={styles.submit}
+          onPress={handleManualItemSubmit}
+        >
+          <Text style={{ color: "white", fontSize: 17 }}>Submit</Text>
+        </TouchableOpacity>
       </View>
       {loading && (
         <View style={styles.overlay}>
@@ -160,7 +185,7 @@ const KeyPad = () => {
       <FlatList
         data={products}
         contentContainerStyle={{
-          marginTop: 10,
+          // marginTop: 10,
           paddingBottom: 100,
         }}
         style={styles.flatList}
@@ -189,7 +214,7 @@ const KeyPad = () => {
         resizeMode="center"
         style={[styles.fixed, styles.containter, { zIndex: -1 }]}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -202,19 +227,21 @@ const styles = StyleSheet.create({
     // marginBottom: 0,
   },
   container: {
-    position: "absolute", // Position the keypad container absolutely
-    top: 0, // At the top of the safe area
-    left: 0,
-    right: 0,
-    justifyContent: "center",
+    // position: "absolute", // Position the keypad container absolutely
+    // top: 0, // At the top of the safe area
+    // left: 0,
+    // right: 0,
+    justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
+    flexDirection: "row",
     // backgroundColor: "white", // Changed from transparent to white for visibility
     zIndex: 10, // Ensure it stacks above the FlatList
   },
   input: {
     height: 50,
-    width: "100%",
+    // width: "72%",
+    flex: 0.74,
     marginVertical: 15,
     borderWidth: 1,
     borderColor: "gray",
@@ -244,6 +271,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1,
+  },
+  submit: {
+    backgroundColor: Colors.main,
+    justifyContent: "center",
+    borderRadius: 5,
+    flex: 0.24,
+    height: 50,
+    alignItems: "center",
   },
 });
 

@@ -1,10 +1,18 @@
-import { StyleSheet, Text, View, Pressable, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { Fontisto } from "@expo/vector-icons";
 import React, { useEffect } from "react";
 import CounterNew from "./Counter";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    addToCartFirst,
   decreaseQuanity,
   deleteCart,
   deleteProduct,
@@ -14,15 +22,16 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { Modal } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Colors from "../constants/Colors";
 
-const ScannedItemCard = ({
+const ItemProductCard = ({
   imageUrl,
   itemNo,
   description,
   sellPriceCase1,
   unitsPerCase,
   sellPriceUnit,
-  currentCount,
   size,
   pack,
 }) => {
@@ -40,6 +49,8 @@ const ScannedItemCard = ({
   const [imageUri, setImageUri] = useState(`${imgUrl}/${itemNo}/0thn.jpg`);
   const [highResImageUri, setHighResImageUri] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  //
+  const [qty, setQty] = useState(1);
 
   useEffect(() => {
     setHighResImageUri(getHighResUri(0));
@@ -65,24 +76,6 @@ const ScannedItemCard = ({
     checkImage();
   }, [itemNo]);
 
-  function handleCloseButton() {
-    // dispatch(deleteProduct({ itemNo }));
-    Alert.alert(
-      "Delete Item",
-      "Are you sure you want to delete this item?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        { text: "OK", onPress: () => dispatch(deleteCart({ acctNo, itemNo, token })) },
-      ],
-      { cancelable: false }
-    );
-    // dispatch(deleteCart({ acctNo, itemNo, token }));
-  }
-
   let unitPrice =
     typeof sellPriceUnit === "number" && sellPriceUnit ? sellPriceUnit : 0;
   if (
@@ -94,66 +87,6 @@ const ScannedItemCard = ({
     unitPrice = sellPriceCase1 / unitsPerCase;
   }
   const roundedUnitPrice = unitPrice.toFixed(2);
-
-  const incrementCounter = () => {
-    const existingItem = products.find((product) => product.itemNo === itemNo);
-    const qty = existingItem?.qty || 0;
-
-    const currentDate = new Date();
-    const formattedDateString = currentDate.toLocaleString("en-US", {timeZone: "America/New_York"});
-
-    const payload = {
-      item: products?.item,
-      acctNo: acctNo,
-      itemNo: itemNo,
-      price: sellPriceCase1,
-      qty: qty + 1,
-      emailAddress: email,
-      qtyType: "CASE",
-      cartType: "CART",
-      cartTypeDesc: "",
-      goScan: "Y",
-      storeNo: "",
-      dateAdded: existingItem?.dateAdded || formattedDateString,
-    };
-
-    console.log("payload", payload);
-    dispatch(updateCart({ acctNo, token, payload }));
-    // dispatch(increaseQuanity({ itemNo: itemNo }));
-  };
-  const decrementCounter = () => {
-    // if (qty === 1) {
-    //   dispatch(deleteCart({ acctNo, itemNo, token }));
-    // } else {
-    const existingItem = products.find((product) => product.itemNo === itemNo);
-    const qty = existingItem?.qty || 0;
-    if (qty === 1) {
-      dispatch(deleteCart({ acctNo, itemNo, token }));
-    } else {
-      const currentDate = new Date();
-      const formattedDateString = currentDate.toLocaleString("en-US", {timeZone: "America/New_York"});  
-      const payload = {
-        item: products?.item,
-        acctNo: acctNo,
-        itemNo: itemNo,
-        price: sellPriceCase1,
-        qty: qty - 1,
-        emailAddress: email,
-        qtyType: "CASE",
-        cartType: "CART",
-        cartTypeDesc: "",
-        goScan: "Y",
-        storeNo: "",
-        dateAdded: existingItem?.dateAdded || formattedDateString,
-      };
-
-      dispatch(updateCart({ acctNo, token, payload }));
-    }
-    // if (currentCount >= 2) {
-    //   dispatch(decreaseQuanity({ itemNo }));
-    // }
-    // setCounter((prevCounter) => (prevCounter > 0 ? prevCounter - 1 : 0));
-  };
 
   const openModal = () => {
     setCurrentImageIndex(0); // Reset the image index when modal is opened
@@ -206,11 +139,68 @@ const ScannedItemCard = ({
       });
   };
 
+  const incrementCounter = () => {
+    setQty(qty + 1);
+  };
+
+  const decrementCounter = () => {
+    if (qty > 1) {
+      setQty(qty - 1);
+    }
+  };
+
+  const AddtoCart = () => {
+        const isExist = products.some(
+          (data) => data.itemNo === itemNo
+        );
+    
+        const existingItem = products.find(data => data.itemNo === itemNo);
+        console.log("isExist", qty,existingItem?.qty);
+        if (isExist) {
+          const currentDate = new Date();
+          const formattedDateString = currentDate.toLocaleString("en-US", {timeZone: "America/New_York"});  
+          const payload = {
+            item: products?.item,
+            acctNo: acctNo,
+            itemNo: itemNo,
+            price: sellPriceCase1 * qty,
+            qty: qty + existingItem?.qty,
+            emailAddress: email,
+            qtyType: "CASE",
+            cartType: "CART",
+            cartTypeDesc: "",
+            goScan: "Y",
+            storeNo: "",
+            dateAdded: existingItem?.dateAdded || formattedDateString,
+          };
+          dispatch(updateCart({ acctNo, token, payload }));
+        } else {
+          const payload = {
+            cartTypeDesc: "",
+            item: { documentCount: 0 },
+            itemNo: itemNo,
+            storeNo: "",
+            qty: qty,
+            acctNo: acctNo,
+            emailAddress: email,
+            price: sellPriceCase1 * qty,
+            goScan: "YES",
+            qtyType: "CASE",
+            cartType: "CART",
+          };
+    
+          dispatch(
+            addToCartFirst({
+              acctNo,
+              token,
+              payload,
+            })
+          );
+        }
+  }
+
   return isOpen ? (
     <View style={styles.container}>
-      <Pressable onPress={handleCloseButton} style={styles.closeButton}>
-        <Fontisto name="close" size={24} color="black" />
-      </Pressable>
       <View style={styles.subCon}>
         <View style={{ flex: 0.4, alignItems: "center" }}>
           <Pressable onPress={openModal}>
@@ -248,15 +238,17 @@ const ScannedItemCard = ({
               {sellPriceUnit === 0 ? roundedUnitPrice : sellPriceUnit} ea
             </Text>
           </View>
-          <Text style={styles.itemText}>
-            {"SubTotal: " + `$${(sellPriceCase1 * currentCount).toFixed(2)}`}
-          </Text>
           <CounterNew
-            currentCount={currentCount}
+            currentCount={qty}
             itemNo={itemNo}
             incrementCounter={incrementCounter}
             decrementCounter={decrementCounter}
           />
+
+          <TouchableOpacity style={styles.btn} onPress={() => AddtoCart()}>
+            <MaterialCommunityIcons name="cart-plus" size={24} color="white" />
+            <Text style={styles.btnLabel}>Add to Cart</Text>
+          </TouchableOpacity>
         </View>
         <Modal
           animationType="fade"
@@ -295,7 +287,7 @@ const ScannedItemCard = ({
   ) : null;
 };
 
-export default ScannedItemCard;
+export default ItemProductCard;
 
 const styles = StyleSheet.create({
   container: {
@@ -397,5 +389,23 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#ddd",
     borderRadius: 5,
+  },
+  btn: {
+    backgroundColor: Colors.main,
+    padding: 10,
+    margin: 10,
+    marginTop: 15,
+    marginBottom: 20,
+    borderRadius: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "70%",
+  },
+  btnLabel: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+    marginLeft: 10,
   },
 });

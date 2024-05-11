@@ -10,11 +10,12 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PreviousOrder from "../screens/previousOrder";
 import PreviousOrderDetails from "../screens/previousOrderDetails";
 import SwitchAccount from "../screens/switchAccount";
-import { Text, View } from "react-native";
+import { Text, View, TouchableOpacity, Dimensions } from "react-native";
 import { useSelector } from "react-redux";
 import TeamsCondition from "../screens/teamsCondition";
 import PrivacyPolicy from "../screens/privacyPolicy";
 import Profile from "../screens/profile";
+import SearchItem from "../screens/searchItem";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -71,7 +72,7 @@ const Tabs = () => {
       <Tab.Screen
         name="Scanner"
         component={Scanner}
-        options={{
+        options={({ navigation }) => ({
           tabBarLabel: "Scan",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
@@ -90,7 +91,9 @@ const Tabs = () => {
             fontSize: 15,
           },
           headerTitle: () => (
-            <View style={{ alignItems: "center" }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+            >
               {/* <Text style={customStyle}>IMX</Text> */}
               <Text
                 numberOfLines={1}
@@ -103,14 +106,26 @@ const Tabs = () => {
               >
                 Welcome {company?.company}
               </Text>
+              {/* search icon */}
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  right: -Dimensions.get("window").width * 0.25,
+                }}
+                onPress={() => {
+                  navigation.navigate("searchItem");
+                }}
+              >
+                <FontAwesome5 name="search" size={22} color="white" />
+              </TouchableOpacity>
             </View>
           ),
-        }}
+        })}
       />
       <Tab.Screen
         name="KeyPad"
         component={KeyPad}
-        options={{
+        options={({ navigation }) => ({
           tabBarLabel: "KeyPad",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="keypad" color={color} size={size} />
@@ -125,7 +140,9 @@ const Tabs = () => {
             fontSize: 15,
           },
           headerTitle: () => (
-            <View style={{ alignItems: "center" }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+            >
               {/* <Text style={customStyle}>IMX</Text> */}
               <Text
                 numberOfLines={1}
@@ -138,14 +155,26 @@ const Tabs = () => {
               >
                 Welcome {company?.company}
               </Text>
+              {/* search icon */}
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  right: -Dimensions.get("window").width * 0.25,
+                }}
+                onPress={() => {
+                  navigation.navigate("searchItem");
+                }}
+              >
+                <FontAwesome5 name="search" size={22} color="white" />
+              </TouchableOpacity>
             </View>
           ),
-        }}
+        })}
       />
       <Tab.Screen
         name="Cart"
         component={Cart}
-        options={{
+        options={({ navigation }) => ({
           tabBarLabel: "Cart",
           tabBarIcon: ({ color, size }) => (
             <FontAwesome5 name="shopping-cart" size={size} color={color} />
@@ -160,7 +189,9 @@ const Tabs = () => {
             fontSize: 15,
           },
           headerTitle: () => (
-            <View style={{ alignItems: "center" }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+            >
               {/* <Text style={customStyle}>IMX</Text> */}
               <Text
                 numberOfLines={1}
@@ -173,9 +204,21 @@ const Tabs = () => {
               >
                 Welcome {company?.company}
               </Text>
+              {/* search icon */}
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  right: -Dimensions.get("window").width * 0.25,
+                }}
+                onPress={() => {
+                  navigation.navigate("searchItem");
+                }}
+              >
+                <FontAwesome5 name="search" size={22} color="white" />
+              </TouchableOpacity>
             </View>
           ),
-        }}
+        })}
       />
       <Tab.Screen
         name="Menu"
@@ -300,6 +343,23 @@ const MainStack = () => {
         component={TeamsCondition}
         options={{
           title: "Terms & Conditions",
+          headerStyle: {
+            backgroundColor: "#007AFF",
+          },
+          headerTitleAlign: "center",
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 15,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name="searchItem"
+        component={SearchItem}
+        options={{
+          title: "Search Items",
           headerStyle: {
             backgroundColor: "#007AFF",
           },

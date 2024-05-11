@@ -24,8 +24,6 @@ const Home = () => {
   const company = useSelector((state) => state.user.user.company);
   const assetsUrl = company?.assetsUrl;
 
-  console.log("Home", assetsUrl);
-
   useEffect(() => {
     if (isFocused) {
       console.log("Home is focused", token);

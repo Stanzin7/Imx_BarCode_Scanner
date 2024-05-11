@@ -46,6 +46,8 @@ const PreviousOrderDetails = ({
 
     console.log("isExist", item?.qty,existingItem?.qty);
     if (isExist) {
+      const currentDate = new Date();
+      const formattedDateString = currentDate.toLocaleString("en-US", {timeZone: "America/New_York"});  
       const payload = {
         item: products?.item,
         acctNo: acctNo,
@@ -58,7 +60,7 @@ const PreviousOrderDetails = ({
         cartTypeDesc: "",
         goScan: "Y",
         storeNo: "",
-        dateAdded: new Date().toISOString(),
+        dateAdded: existingItem?.dateAdded || formattedDateString,
       };
       dispatch(updateCart({ acctNo, token, payload }));
     } else {
@@ -96,6 +98,8 @@ const PreviousOrderDetails = ({
 
       console.log("isExist", isExist);
       if (isExist) {
+        const currentDate = new Date();
+        const formattedDateString = currentDate.toLocaleString("en-US", {timeZone: "America/New_York"});    
         const payload = {
           item: products?.item,
           acctNo: acctNo,
@@ -108,7 +112,7 @@ const PreviousOrderDetails = ({
           cartTypeDesc: "",
           goScan: "Y",
           storeNo: "",
-          dateAdded: new Date().toISOString(),
+          dateAdded: formattedDateString,
         };
         dispatch(updateCart({ acctNo, token, payload }));
       } else {

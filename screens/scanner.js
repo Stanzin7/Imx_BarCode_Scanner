@@ -14,7 +14,7 @@ import {
   ImageBackground,
   ActivityIndicator,
 } from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera/next";
+// import { CameraView, useCameraPermissions } from "expo-camera/next";
 import ScannedItemCard from "../components/ProductCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,9 +27,10 @@ import {
 import { searchItemByBarcode } from "../redux/reducers/userReducer";
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
-import { Camera } from "expo-camera";
+import { Camera, CameraView,useCameraPermissions } from "expo-camera";
 import Colors from "../constants/Colors";
 import { useIsFocused } from "@react-navigation/native";
+import ShowToast from "../hooks/ShowToast";
 
 const Scanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -95,6 +96,12 @@ const Scanner = () => {
         .then((response) => {
           console.log("Search item response:", response); // Log the response from the search
           if (response) {
+            if(response?.webOutOfStockFlag === "Y"){
+              ShowToast("Item is out of stock", "error");
+              playSound(require("../assets/sounds/NotFound.wav"));
+              setIsCameraVisible(false);
+              return;
+            }  
             setIsCameraVisible(false);
             playSound(require("../assets/sounds/Found.wav"));
             // dispatch(addProduct({ item: response, itemNo: response.itemNo }));
@@ -108,7 +115,14 @@ const Scanner = () => {
               (item) => item.itemNo === response.itemNo
             );
 
-            console.log("isExist", isExist);
+            console.log("isExist During Scan", isExist);
+            if(isExist){
+              playSound(require("../assets/sounds/AlreadyExist.wav"));
+            }else{
+              playSound(require("../assets/sounds/Found.wav"));
+            }
+            const currentDate = new Date();
+            const formattedDateString = currentDate.toLocaleString("en-US", {timeZone: "America/New_York"});        
             if (isExist) {
               const payload = {
                 item: products?.item,
@@ -122,7 +136,7 @@ const Scanner = () => {
                 cartTypeDesc: "",
                 goScan: "Y",
                 storeNo: "",
-                dateAdded: new Date().toISOString(),
+                dateAdded: existingItem?.dateAdded || formattedDateString,
               };
               dispatch(updateCart({ acctNo, token, payload }));
             } else {
@@ -138,6 +152,7 @@ const Scanner = () => {
                 goScan: "YES",
                 qtyType: "CASE",
                 cartType: "CART",
+                dateAdded: formattedDateString,
               };
 
               console.log("Adding to cart for the first time", payload);
@@ -151,6 +166,7 @@ const Scanner = () => {
             }
           } else {
             playSound(require("../assets/sounds/NotFound.wav"));
+            ShowToast("Oops! Item not found", "error");
             setIsCameraVisible(false);
           }
         })
@@ -177,7 +193,7 @@ const Scanner = () => {
               style={styles.btn}
               onPress={requestPermission}
             >
-              <Text style={{ color: "white" }}>Allow Camera</Text>
+              <Text style={{ color: "white" }}>Continue</Text>
             </TouchableOpacity>
           </View>
         );
@@ -238,7 +254,7 @@ const Scanner = () => {
     <SafeAreaView style={styles.safeAreaContainer}>
       {isCameraVisible && (
         <View style={cameraStyle}>
-          {Platform.OS === "ios" ? (
+          {/* {Platform.OS === "ios" ? ( */}
             <CameraView
               key={cameraKey}
               style={StyleSheet.absoluteFill}
@@ -248,17 +264,18 @@ const Scanner = () => {
                 <View style={styles.frame} />
               </View>
             </CameraView>
-          ) : (
+          {/* ) : (
             <Camera
               style={StyleSheet.absoluteFill}
-              type={Camera.Constants.Type.back}
+              // type={Camera?.Constants?.Type?.back}
+              
               onBarCodeScanned={scanned ? undefined : handleBarcodeScanned}
             >
               <View style={styles.overlay}>
                 <View style={styles.frame} />
               </View>
-            </Camera>
-          )}
+            </Camera> */}
+          {/* )} */}
         </View>
       )}
       {loading && (
@@ -327,7 +344,7 @@ const styles = StyleSheet.create({
   },
   camera: {
     width: "100%",
-    height: 100,
+    height: 130,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

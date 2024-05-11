@@ -15,39 +15,24 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
-        "NSCameraUsageDescription": "This app requires camera access to take scan products.",
-        "NSMicrophoneUsageDescription": "This app requires speaker access to play audio."
+        "NSCameraUsageDescription": "This app requires camera access to scan barcode. Access is needed for [specific functionality], ensuring better service."
       },
       "bundleIdentifier": "com.Imx.Scan",
-      "buildNumber": "3"
+      "buildNumber": "7"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": [
-        "CAMERA",
-        "RECORD_AUDIO",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ],
+      "permissions": ["CAMERA", "android.permission.CAMERA"],
       "package": "com.stanzin7.Imx"
     },
     "plugins": [
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access the camera to scan products",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access the speaker to play audio",
-          "recordAudioAndroid": true
-        }
-      ],
-      [
-        "expo-barcode-scanner",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access the camera to scan products."
+          "cameraPermission": "We need access to your camera to scan product barcodes and UPC codes for product information retrieval and inventory management."
         }
       ]
     ],

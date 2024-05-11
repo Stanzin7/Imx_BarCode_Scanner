@@ -62,6 +62,8 @@ export const loginUser = createAsyncThunk(
       }
 
       const company = companyConfigs[companyKey];
+
+      console.log("Company:", company, emailAddress, password);
       const response = await fetch(`${company.loginUrl}`, {
         method: "POST",
         headers: {
@@ -89,8 +91,8 @@ export const loginUser = createAsyncThunk(
         res?.mobileAppPurchFlag
       );
 
-      if (res?.mobileAppPurchFlag != "N") {
-        throw new Error("Mobile App Purchases are disabled for this account");
+      if (res?.mobileAppPurchFlag == "N" || res?.mobileAppPurchFlag == "n" || res?.mobileAppPurchFlag == "NO" || res?.mobileAppPurchFlag == "no") {
+        throw new Error("You are not authorized to use this app. Please contact your administrator");
       }
 
       data = { ...data, companyName: company }; // Simulated response with companyName
@@ -132,6 +134,7 @@ export const fetchItem = createAsyncThunk(
     }
   }
 );
+
 export const searchItemByBarcode = createAsyncThunk(
   "user/searchItemByBarcode",
 
@@ -172,6 +175,7 @@ export const searchItemByBarcode = createAsyncThunk(
     }
   }
 );
+
 export const previousOrder = createAsyncThunk(
   "user/previousOrder",
   async ({ acctNo, token }, { getState, rejectWithValue }) => {
@@ -275,6 +279,51 @@ export const submitOrder = createAsyncThunk(
     }
   }
 );
+
+export const searchItems = createAsyncThunk(
+  "user/searchItems",
+
+  async ({ barcodeId, token, acctNo }, { getState, rejectWithValue }) => {
+    // console.log("Using token for request:", token);
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    try {
+      const pageNo = 0;
+      const pageSize = 200; // Adjust pageSize if necessary
+      const response = await fetch(
+        `${apiUrl}/itemrecs/search/${barcodeId}/${pageNo}/${pageSize}/${acctNo}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ClientID: company.clientID,
+            ClientSecret: company.clientSecret,
+          },
+        }
+      );
+
+      const text = await response.text(); // Get text to avoid JSON parsing errors initially
+      if (!response.ok) {
+        throw new Error(data.message || "Could not find item by barcode");
+      }
+
+      const data = JSON.parse(text);
+      return data;
+    } catch (error) {
+      console.error("Search API error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const clearSearchItems = createAsyncThunk(
+  "user/clearSearchItems",
+  async (_, { dispatch }) => {
+    dispatch(searchItems.fulfilled(null));
+  }
+);
+      
 
 export const fetchCompanyInfo = createAsyncThunk(
   "user/fetchCompanyInfo",
@@ -451,6 +500,41 @@ export const Webloginacctrecs = createAsyncThunk(
   }
 );
 
+export const searchAccounts = createAsyncThunk(
+  "user/searchAccounts",
+  async ({ token, searchAccount }, { getState, rejectWithValue }) => {
+    console.log("searchAccount", searchAccount);
+    const state = getState();
+    const company = state?.user?.user?.company;
+    const apiUrl = company?.apiUrl;
+    const url = `${apiUrl}/customerrecs/adminSearch/${searchAccount}`;
+    console.log("Fetching switch account details with hardcoded account:", url);
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Clientid: company.clientID,
+          Clientsecret: company.clientSecret,
+        },
+      });
+
+      const text = await response.text(); // Get text to avoid JSON parsing errors initially
+      if (!response.ok) {
+        console.error("Error fetching  switch accounts:", text);
+        throw new Error(`Could not fetch switch account: ${response.status}`);
+      }
+      const data = JSON.parse(text); // Parse text to JSON manually
+
+      console.log("searchAccounts", data);
+      return data;
+    } catch (error) {
+      console.error("Catch error:", error);
+      return rejectWithValue(error.toString());
+    }
+  }
+);
+
 const initialState = {
   category: null,
   user: null,
@@ -459,6 +543,7 @@ const initialState = {
   error: null,
   item: null,
   searchResult: null,
+  searchItems: null,
   companyInfo: null,
 };
 
@@ -491,6 +576,17 @@ const userReducer = createSlice({
         state.accessToken = action.payload.token;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(searchItems.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(searchItems.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.searchItems = action.payload;
+      })
+      .addCase(searchItems.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
@@ -601,6 +697,17 @@ const userReducer = createSlice({
         };
       })
       .addCase(selectSwitchAccount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(searchAccounts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(searchAccounts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.switchAccountRes = action.payload;
+      })
+      .addCase(searchAccounts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
