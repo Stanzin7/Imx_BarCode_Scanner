@@ -256,6 +256,31 @@ const ScannedItemCard = ({
             itemNo={itemNo}
             incrementCounter={incrementCounter}
             decrementCounter={decrementCounter}
+            updateCart={(value)=>{ 
+              const existingItem = products.find((product) => product.itemNo === itemNo);          
+              const currentDate = new Date();
+              const formattedDateString = currentDate.toLocaleString("en-US", {
+                timeZone: "America/New_York",
+              });
+          
+              const payload = {
+                item: products?.item,
+                acctNo: acctNo,
+                itemNo: itemNo,
+                price: sellPriceCase1,
+                qty: value,
+                emailAddress: email,
+                qtyType: "CASE",
+                cartType: "CART",
+                cartTypeDesc: "",
+                goScan: "Y",
+                storeNo: "",
+                dateAdded: existingItem?.dateAdded || formattedDateString,
+              };
+          
+              dispatch(updateCart({ acctNo, token, payload }));          
+            }
+          }
           />
         </View>
         <Modal

@@ -243,6 +243,7 @@ const ItemProductCard = ({
             itemNo={itemNo}
             incrementCounter={incrementCounter}
             decrementCounter={decrementCounter}
+            updateCart={(value) => setQty(value)}
           />
 
           <TouchableOpacity style={styles.btn} onPress={() => AddtoCart()}>

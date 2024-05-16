@@ -51,7 +51,16 @@ const SwitchAccount = ({ navigation }) => {
 
   const renderItem = ({ item, index }) => (
     <View key={index} style={styles.rowContainer}>
-      <Text style={[styles.rowText, { width: 100 }]}>{item.acctNo}</Text>
+      <Text
+        onPress={() => {
+          dispatch(
+            selectSwitchAccount({ acctNo: item.acctNo, token, navigation })
+          );
+        }}
+        style={[styles.rowText, { width: 100 }]}
+      >
+        {item.acctNo}
+      </Text>
       <Text style={styles.rowText}>{item?.firstName}</Text>
       <Text style={styles.rowText}>{item.lastName}</Text>
       <Text style={styles.rowText}>{item.company}</Text>

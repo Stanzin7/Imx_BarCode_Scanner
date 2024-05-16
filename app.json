@@ -2,7 +2,7 @@
   "expo": {
     "name": "Imx",
     "slug": "Imx",
-    "version": "1.0.1",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
@@ -18,7 +18,7 @@
         "NSCameraUsageDescription": "This app requires camera access to scan barcode. Access is needed for [specific functionality], ensuring better service."
       },
       "bundleIdentifier": "com.Imx.Scan",
-      "buildNumber": "7"
+      "buildNumber": "9"
     },
     "android": {
       "adaptiveIcon": {

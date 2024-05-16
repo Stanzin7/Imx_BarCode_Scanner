@@ -25,9 +25,14 @@ const customStyle = {
   fontWeight: "bold",
   lineHeight: 20,
   color: "white",
+  width: "90%",
+  textAlign: "center",
+  // flex:1,
+  // backgroundColor: "red",
 };
 const Tabs = () => {
   const company = useSelector((state) => state.user.user?.customers[0]);
+  console.log("company===?", company);
   return (
     <Tab.Navigator>
       {/* <Tab.Screen
@@ -104,13 +109,13 @@ const Tabs = () => {
                   },
                 ]}
               >
-                Welcome {company?.company}
+                Welcome {company?.company  + " - " + company?.acctNo}
               </Text>
               {/* search icon */}
               <TouchableOpacity
                 style={{
                   position: "absolute",
-                  right: -Dimensions.get("window").width * 0.25,
+                  right: 0,
                 }}
                 onPress={() => {
                   navigation.navigate("searchItem");
@@ -153,13 +158,13 @@ const Tabs = () => {
                   },
                 ]}
               >
-                Welcome {company?.company}
+                Welcome {company?.company  + " - " + company?.acctNo}
               </Text>
               {/* search icon */}
               <TouchableOpacity
                 style={{
                   position: "absolute",
-                  right: -Dimensions.get("window").width * 0.25,
+                  right: 0,
                 }}
                 onPress={() => {
                   navigation.navigate("searchItem");
@@ -202,13 +207,13 @@ const Tabs = () => {
                   },
                 ]}
               >
-                Welcome {company?.company}
+                Welcome {company?.company + " - " + company?.acctNo}
               </Text>
               {/* search icon */}
               <TouchableOpacity
                 style={{
                   position: "absolute",
-                  right: -Dimensions.get("window").width * 0.25,
+                  right: 0,
                 }}
                 onPress={() => {
                   navigation.navigate("searchItem");

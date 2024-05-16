@@ -27,6 +27,8 @@ export const getCart = createAsyncThunk(
         console.error("Error fetching cart:", text);
         throw new Error(`Error fetching cart: ${response.status}`);
       }
+
+      console.log("Get Cart Response====>", text);
       return JSON.parse(text); // Parse text to JSON manually
     } catch (error) {
       console.error("Catch error:", error);
